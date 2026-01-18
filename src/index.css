@@ -1,0 +1,48 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+@import url( "slick-carousel/slick/slick.css");
+@import "tailwindcss";
+
+@theme {
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 375px;
+  --breakpoint-sml: 500px;
+  --breakpoint-md: 667px;
+  --breakpoint-mdl: 768px;
+  --breakpoint-lg: 960px;
+  --breakpoint-lgl: 1024px;
+  --breakpoint-xl: 1280px;
+
+  /* Custom Container Width */
+  --max-width-container: 1440px;
+
+  /* Fonts */
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-roboto: "Roboto", sans-serif;
+  /* Added this because you used it in Header */
+  --font-title-font: "Roboto", sans-serif; 
+
+  /* Colors */
+  --color-amazon-blue: #131921;
+  --color-amazon-light: #232f3e;
+  --color-amazon-yellow: #febd69;
+  --color-white-text: #ffffff;
+  --color-light-text: #cccccc;
+  --color-quantity-box: #f0f2f2;
+  --color-footer-bottom: #131a22;
+
+  /* Shadows */
+  --shadow-test-shadow: 0px 0px 32px 1px rgba(199, 199, 199, 1);
+  --shadow-amazon-input: 0 0 3px 2px rgb(228 121 17 / 50%);
+}
+
+@utility container {
+  max-width: 1440px;
+  margin-inline: auto; /* Recommended to center it */
+}
+   
+@layer components{
+   .headerHover {
+    @apply px-2 h-[80%] flex items-center border border-transparent hover:border-white cursor-pointer duration-100; 
+   }
+}
