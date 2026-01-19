@@ -3,7 +3,7 @@ import { addItemToCart, removeItemFromCart } from "./cart.utils";
 
 const initialState = {
   products: [],
-  // Removed "userInfo" because Auth is now handled by Context API
+  // Context API
 };
 
 export const cartSlice = createSlice({

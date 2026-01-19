@@ -9,19 +9,22 @@ import { AuthProvider } from "./context/auth.context.jsx"; // <--- Import this
 import { ProductsProvider } from "./context/products.context.jsx";
 import { OrdersProvider } from "./context/orders.context.jsx";
 import { CheckoutProvider } from "./context/checkout.cotext.jsx";
+import { CartProvider } from "./context/cart.context.jsx";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         {/* Wrap App with AuthProvider */}
         <AuthProvider>
-          <ProductsProvider>
-            <OrdersProvider>
-              <CheckoutProvider>
-           <App />
-           </CheckoutProvider>
-           </OrdersProvider>
-           </ProductsProvider>
+          <CartProvider>
+            <ProductsProvider>
+              <OrdersProvider>
+                <CheckoutProvider>
+                  <App />
+                </CheckoutProvider>
+              </OrdersProvider>
+            </ProductsProvider>
+          </CartProvider>
         </AuthProvider>
       </PersistGate>
     </Provider>

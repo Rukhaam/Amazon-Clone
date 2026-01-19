@@ -1,19 +1,20 @@
 import React, { createContext, useContext, useState } from "react";
 import { 
   collection, 
-  doc, 
-  writeBatch, // <--- 1. Import writeBatch
+  addDoc, // Use addDoc since we aren't doing a batch for the cart anymore
   serverTimestamp 
 } from "firebase/firestore";
-import { db } from "../../firebase/firebase.utils";
+import { db } from "../../firebase/firebase.utils"; // Ensure path is correct
 import { useAuth } from "./auth.context"; 
 import { useOrders } from "./orders.context"; 
+import { useCart } from "./cart.context"; // <--- Import useCart
 
 const CheckoutContext = createContext();
 
 export const CheckoutProvider = ({ children }) => {
   const { currentUser } = useAuth();
   const { refreshOrders } = useOrders(); 
+  const { clearCart } = useCart(); // <--- Get the smart clear function
   
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
@@ -28,12 +29,7 @@ export const CheckoutProvider = ({ children }) => {
       setCheckoutLoading(true);
       setCheckoutError("");
 
-      // === BATCH WRITE START ===
-      const batch = writeBatch(db);
-
-      // 1. Prepare Order Reference
-      const newOrderRef = doc(collection(db, "orders")); 
-      
+      // 1. Prepare Order Data
       const orderData = {
         userId: currentUser.uid,
         userEmail: currentUser.email,
@@ -45,21 +41,18 @@ export const CheckoutProvider = ({ children }) => {
         createdAt: serverTimestamp(),
       };
 
-      // 2. Add Order to Batch
-      batch.set(newOrderRef, orderData);
+      // 2. Write Order to Firestore
+      await addDoc(collection(db, "orders"), orderData);
 
-      // 3. Delete Cart from Cloud in same Batch
-      const cartRef = doc(db, "carts", currentUser.uid);
-      batch.delete(cartRef);
+      // 3. Clear Cart (The Smart Way)
+      // This calls the function in CartContext, which clears Redux, 
+      // which triggers the sync Effect to clear Firestore automatically.
+      await clearCart(); 
 
-      // 4. Commit Both Actions
-      await batch.commit();
-      // === BATCH WRITE END ===
-
-      // 5. Update Local State
-      refreshOrders(); // Update Orders Page list
+      // 4. Update Local State
+      refreshOrders(); 
       
-      return true; // Return success
+      return true; // Success
 
     } catch (error) {
       console.error("Checkout Error:", error);
