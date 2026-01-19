@@ -17,10 +17,15 @@ import SearchResults from "../pages/search.page";
 import SignIn from "../pages/signIn.page";
 import Registration from "../pages/register.page";
 import { useAuth } from "./context/auth.context";
-import useCartSync from "./hooks/useCartSync";
 import Checkout from "../pages/checkout.page";
 import Orders from "../pages/orders.page";
 
+// === NEW ADMIN IMPORTS ===
+import AdminRoute from "../components/admin/adminRoute.component";
+import AdminDashboard from "../pages/admin/AdminDashboard";
+import AddProduct from "../pages/admin/addProduct.page";
+import AdminOrders from "../pages/admin/adminOrders.page";
+import AdminProducts from "../pages/admin/adminProducts.page";
 const Layout = () => {
   return (
     <div>
@@ -32,32 +37,44 @@ const Layout = () => {
 };
 
 function App() {
-  // 1. Get User from Context (Replaces Redux Selector)
   const { currentUser } = useAuth();
 
-  // 2. Activate Firestore Cart Sync
-  // This hook listens to the user & redux cart to sync them automatically
-  useCartSync();
+  // NOTE: useCartSync() is removed because CartProvider in main.jsx now handles syncing.
 
   const router = createBrowserRouter(
     createRoutesFromElements(
       <Route>
+        {/* === PUBLIC LAYOUT ROUTES === */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-
-          {/* Dynamic Route for Categories */}
           <Route path="/category/:category" element={<CategoryPage />} />
-
-          {/* Dynamic Route for Single Product */}
           <Route path="/product/:id" element={<ProductDetails />} />
-          
           <Route path="/orders" element={<Orders />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/search" element={<SearchResults />} />
           <Route path="/checkout" element={<Checkout />} />
         </Route>
 
-        {/* Protected Routes (Redirect if logged in) */}
+        {/* === ADMIN ROUTES (Protected & Separate Layout) === */}
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        >
+          {/* Define sub-routes for the admin panel here */}
+          <Route
+            index
+            element={<h2 className="p-4">Welcome to Admin Dashboard</h2>}
+          />
+          <Route path="add-product" element={<AddProduct />} />
+          <Route path="orders" element={<AdminOrders />} />
+          <Route path="products" element={<AdminProducts />} />
+        </Route>
+
+        {/* === AUTH ROUTES === */}
         <Route
           path="/signin"
           element={currentUser ? <Navigate to="/" replace /> : <SignIn />}

@@ -3,7 +3,7 @@ import storage from "redux-persist/lib/storage";
 import cartReducer from "./cartSlice";
 import FilterReducer from "./filter/filterSlice";
 import searchReducer from "./search/searchSlice";
-import userReducer from "./search/searchSlice";
+import userReducer from "./user/userSlice";
 // import { configureStore } from "@reduxjs/toolkit";
 import {
   persistStore,

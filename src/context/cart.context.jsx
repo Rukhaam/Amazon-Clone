@@ -45,10 +45,8 @@ export const CartProvider = ({ children }) => {
     const timeoutId = setTimeout(async () => {
         const cartRef = doc(db, "carts", currentUser.uid);
         
-        // FIX: Add the user's name to the object we save
         await setDoc(cartRef, { 
             items: cartItems,
-            // Use 'displayName' or fall back to 'email' if name is missing
             userName: currentUser.displayName || currentUser.email,
             updatedAt: new Date() // Optional: Good for debugging
         });
@@ -62,8 +60,6 @@ export const CartProvider = ({ children }) => {
   // 3. EXPOSED HELPER (For Checkout)
   const clearCart = async () => {
      dispatch(resetCart()); 
-     // The useEffect above will catch this change (items becomes []) 
-     // and automatically sync the empty array to Firebase!
   };
 
   return (

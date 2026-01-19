@@ -10,6 +10,7 @@ import { ProductsProvider } from "./context/products.context.jsx";
 import { OrdersProvider } from "./context/orders.context.jsx";
 import { CheckoutProvider } from "./context/checkout.cotext.jsx";
 import { CartProvider } from "./context/cart.context.jsx";
+import { AdminProvider } from "./context/adminOrder.context.jsx";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>
@@ -20,7 +21,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <ProductsProvider>
               <OrdersProvider>
                 <CheckoutProvider>
+                  <AdminProvider>
                   <App />
+                  </AdminProvider>
                 </CheckoutProvider>
               </OrdersProvider>
             </ProductsProvider>

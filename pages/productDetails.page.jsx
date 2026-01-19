@@ -1,36 +1,48 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { ProductsContext } from "../src/context/products.context";
 import StarIcon from "@mui/icons-material/Star";
 import BuyBox from "../components/products/BuyBox.component"; 
+import { useProducts } from "../src/context/products.context"; // <--- Import Context
 
 const ProductDetails = () => {
   const { id } = useParams();
-  const { products } = useContext(ProductsContext);
+  const { fetchProductById } = useProducts(); // <--- Use the helper
+  
   const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (products.length > 0) {
-      const foundProduct = products.find((item) => item.id === parseInt(id));
-      setProduct(foundProduct);
-    }
-  }, [id, products]);
+    const getData = async () => {
+      setLoading(true);
+      const data = await fetchProductById(id); // <--- So clean!
+      setProduct(data);
+      setLoading(false);
+    };
 
-  if (!product)
+    if (id) {
+        getData();
+    }
+  }, [id, fetchProductById]);
+
+  // === UI RENDER (Same as before) ===
+  if (loading) {
     return (
       <div className="w-full flex flex-col items-center justify-center py-20">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-amazon-blue"></div>
-        <p className="mt-4 text-lg font-semibold text-amazon-blue">
-          Loading Product...
-        </p>
+        <p className="mt-4 text-lg font-semibold text-amazon-blue">Loading Product...</p>
       </div>
     );
+  }
+
+  if (!product) {
+    return <div className="p-10 text-center">Product not found.</div>;
+  }
 
   return (
     <div className="w-full bg-white min-h-screen">
       <div className="max-w-[1500px] mx-auto p-4 flex flex-col md:flex-row gap-8 mt-4">
         
-        {/* COLUMN 1: IMAGE */}
+        {/* IMAGE */}
         <div className="w-full md:w-2/5 flex items-start justify-center sticky top-24 h-fit">
           <img
             className="w-full max-w-[400px] h-auto object-contain"
@@ -39,7 +51,7 @@ const ProductDetails = () => {
           />
         </div>
 
-        {/* COLUMN 2: DETAILS */}
+        {/* DETAILS */}
         <div className="w-full md:w-2/5 flex flex-col gap-2">
           <h1 className="text-2xl font-medium text-black">{product.title}</h1>
           
@@ -67,14 +79,12 @@ const ProductDetails = () => {
           <div className="mt-4">
             <h3 className="font-bold text-sm mb-2">About this item</h3>
             <ul className="list-disc ml-4 text-sm text-gray-700 flex flex-col gap-2">
-              <li>{product.description}</li>
-              <li>Official Amazon Merch.</li>
-              <li>High quality styling and materials.</li>
+              <li>{product.description || "No description available."}</li>
             </ul>
           </div>
         </div>
 
-        {/* COLUMN 3: BUY BOX (Separate Component) */}
+        {/* BUY BOX */}
         <div className="w-full md:w-1/5">
            <BuyBox product={product} />
         </div>
