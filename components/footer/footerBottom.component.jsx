@@ -5,7 +5,6 @@ const FooterBottom = () => {
   return (
     <div className="w-full bg-footer-bottom py-8">
       <div className="max-w-container mx-auto px-4">
-        
         {/* --- Top Section: Links Grid --- */}
         <div className="w-full grid grid-cols-1 md:grid-cols-2 lgl:grid-cols-4 gap-3 place-content-center text-gray-400">
           {footerBottomItem.map((item) => (
@@ -31,7 +30,6 @@ const FooterBottom = () => {
             © 1996-2026, Amazon.com, Inc. or its affiliates
           </p>
         </div>
-        
       </div>
     </div>
   );

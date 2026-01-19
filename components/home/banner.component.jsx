@@ -7,102 +7,77 @@ import {
   bannerFour,
   bannerFive,
 } from "../../src/assets";
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+
 const Banner = () => {
-  const [dotsActive, setDotsActive] = useState(0);
+  const [dotActive, setDocActive] = useState(0);
+
+  // Custom Next Arrow Component
+  const NextArrow = (props) => {
+    const { onClick } = props;
+    return (
+      <div
+        className="absolute top-[40%] right-4 z-20 w-12 h-20 bg-transparent  hover:bg-opacity-40 hover:border border-gray-500 flex items-center justify-center cursor-pointer rounded shadow-none transition-all duration-200 group"
+        onClick={onClick}
+      >
+        <ArrowForwardIosIcon className="text-gray-600 group-hover:text-gray-900" sx={{ fontSize: 30 }} />
+      </div>
+    );
+  };
+
+  // Custom Previous Arrow Component
+  const PrevArrow = (props) => {
+    const { onClick } = props;
+    return (
+      <div
+        className="absolute top-[40%] left-4 z-20 w-12 h-20 bg-transparent  hover:bg-opacity-40 hover:border border-gray-500 flex items-center justify-center cursor-pointer rounded shadow-none transition-all duration-200 group"
+        onClick={onClick}
+      >
+        <ArrowBackIosIcon className="text-gray-600 group-hover:text-gray-900" sx={{ fontSize: 30 }} />
+      </div>
+    );
+  };
+
   const settings = {
-    dots: true,
+    dots: false, // Disable dots
     infinite: true,
     autoplay: true,
-    speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    arrows: false,
+    arrows: true, // Enable arrows
+    nextArrow: <NextArrow />,
+    prevArrow: <PrevArrow />,
     beforeChange: (prev, next) => {
-      setDotsActive(next);
+      setDocActive(next);
     },
-    appendDots: (dots) => (
-      <div
-        style={{
-          position: "absolute",
-          top: "70%",
-          left: "45%",
-          transform: "translate(-50% -50%)",
-          width: "210px",
-        }}
-      >
-        <ul
-          style={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          {" "}
-          {dots}{" "}
-        </ul>
-      </div>
-    ),
-    customPaging: (i) => (
-      <div
-        style={
-            i===dotsActive?
-            {
-          width: "30px",
-          height: "30px",
-          borderRadius: "50%",
-          display: " flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "white",
-          background: "#131921",
-          padding: "8px  0",
-          cursor: "pointer",
-          border: "1px solid #f3a847",
-        }:{
-            width: "30px",
-            height: "30px",
-            borderRadius: "50%",
-            display: " flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            background: "#232F3E",
-            padding: "8px  0",
-            cursor: "pointer",
-            border: "1px solid white",
- 
-
-        }
-    }
-      >
-        {i + 1}
-      </div>
-    ),
   };
 
   return (
-    <div className="w-full ">
-      <div className="w-full h-auto relative z-10" >
+    <div className="w-full">
+      <div className="w-full h-full relative">
         <Slider {...settings}>
           <div>
-            <img src={bannerOne} alt="bannerOne" ></img>
+            <img src={bannerOne} alt="bannerOne" />
           </div>
           <div>
-            <img src={bannerTwo} alt="bannerTwo"></img>
+            <img src={bannerTwo} alt="bannerTwo" />
           </div>
           <div>
-            <img src={bannerThree} alt="bannerThree"></img>
+            <img src={bannerThree} alt="bannerThree" />
           </div>
           <div>
-            <img src={bannerFour} alt="bannerFour"></img>
+            <img src={bannerFour} alt="bannerFour" />
           </div>
           <div>
-            <img src={bannerFive} alt="bannerFive"></img>
+            <img src={bannerFive} alt="bannerFive" />
           </div>
         </Slider>
+         {/* Mask Gradient */}
+         <div className="absolute w-full h-32 bg-gradient-to-t from-gray-100 to-transparent bottom-0 z-10" />
       </div>
     </div>
   );
 };
+
 export default Banner;
