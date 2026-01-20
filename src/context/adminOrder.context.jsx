@@ -1,97 +1,80 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
+import { db } from "../../firebase/firebase.utils";
 import { 
   collection, 
   getDocs, 
-  query, 
-  orderBy, 
   doc, 
-  updateDoc ,
-  deleteDoc
+  updateDoc, 
+  query, 
+  orderBy 
 } from "firebase/firestore";
-import { db } from "../../firebase/firebase.utils"; // Check your path
 
-const AdminContext = createContext();
+const AdminOrderContext = createContext();
 
 export const AdminProvider = ({ children }) => {
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
-  const [error, setError] = useState(null);
 
-  // 1. Fetch All Orders (Memoized so it doesn't loop)
+  // 1. Fetch All Orders
   const fetchAllOrders = useCallback(async () => {
     setLoadingOrders(true);
-    setError(null);
     try {
+      // Get all orders sorted by newest first
       const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
       const snapshot = await getDocs(q);
       
-      const ordersData = snapshot.docs.map(doc => ({
+      const ordersData = snapshot.docs.map((doc) => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
       
       setOrders(ordersData);
-    } catch (err) {
-      console.error("Error fetching orders:", err);
-      setError("Failed to fetch orders");
+    } catch (error) {
+      console.error("Error fetching admin orders:", error);
     } finally {
       setLoadingOrders(false);
     }
   }, []);
 
-  // 2. Update Status
+  // 2. Update Order Status
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
+      // A. Update Firebase
       const orderRef = doc(db, "orders", orderId);
-      await updateDoc(orderRef, { orderStatus: newStatus });
       
-      // Optimistic UI Update (Update local state instantly)
-      setOrders(prevOrders => 
-        prevOrders.map(order => 
-          order.id === orderId ? { ...order, orderStatus: newStatus } : order
+      // We update both common field names to be safe
+      await updateDoc(orderRef, { 
+        status: newStatus,
+        orderStatus: newStatus 
+      });
+
+      // B. Update Local State (Crucial for UI to reflect change)
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.id === orderId 
+            ? { ...order, status: newStatus, orderStatus: newStatus } 
+            : order
         )
       );
-      return true; // Success
-    } catch (err) {
-      console.error("Error updating status:", err);
-      setError("Failed to update status");
-      return false;
+      
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert("Failed to update status in database.");
     }
-  };
-  const deleteProduct = async (id) => {
-    try {
-      // Logic check: API IDs are short numbers. We can't delete them.
-      if (String(id).length < 5) {
-        alert("You cannot delete items from the external API.");
-        return false;
-      }
-
-      const docRef = doc(db, "products", id);
-      await deleteDoc(docRef);
-      return true;
-    } catch (err) {
-      console.error("Error deleting product:", err);
-      setError("Failed to delete product");
-      return false;
-    }
-  };
-
-  const value = {
-    orders,
-    loadingOrders,
-    error,
-    fetchAllOrders,
-    updateOrderStatus,
-    deleteProduct
   };
 
   return (
-    <AdminContext.Provider value={value}>
+    <AdminOrderContext.Provider 
+      value={{ 
+        orders, 
+        loadingOrders, 
+        fetchAllOrders, 
+        updateOrderStatus 
+      }}
+    >
       {children}
-    </AdminContext.Provider>
+    </AdminOrderContext.Provider>
   );
 };
 
-export const useAdmin = () => {
-  return useContext(AdminContext);
-};
+export const useAdmin = () => useContext(AdminOrderContext);

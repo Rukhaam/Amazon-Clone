@@ -101,7 +101,7 @@ const Cart = () => {
                 <div className="w-full md:w-3/5">
                   <h2 className="font-semibold text-lg">{item.title}</h2>
                   <p className="text-sm text-gray-600 capitalize pr-10">
-                    {item.description.substring(0, 150)}...
+                  {item.name ? item.name.substring(0, 20) : ''}...
                   </p>
                   <p className="text-sm text-green-600 font-semibold flex items-center gap-1 mt-1">
                     <CheckCircleIcon fontSize="small" /> In Stock

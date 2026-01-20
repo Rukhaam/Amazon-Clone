@@ -4,10 +4,10 @@ import {
   query, 
   where, 
   orderBy, 
-  onSnapshot // <--- Key for real-time updates
+  onSnapshot 
 } from "firebase/firestore";
-import { db } from "../../firebase/firebase.utils"; // Check your path
-import { useAuth } from "./auth.context";
+import { db } from "../../firebase/firebase.utils"; 
+import { useAuth } from "./auth.context"; // Ensure this path is correct
 
 const OrdersContext = createContext();
 
@@ -54,13 +54,7 @@ export const OrdersProvider = ({ children }) => {
     };
   }, [currentUser]);
 
-  // Helper to manually refresh if needed (though onSnapshot handles it usually)
-  const refreshOrders = () => {
-    // Placeholder if you switch back to manual fetching later
-    console.log("Orders match database automatically."); 
-  };
-
-  const value = { orders, loading, refreshOrders };
+  const value = { orders, loading };
 
   return (
     <OrdersContext.Provider value={value}>

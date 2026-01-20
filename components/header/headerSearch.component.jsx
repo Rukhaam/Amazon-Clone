@@ -89,7 +89,7 @@ const HeaderSearch = () => {
 
       {/* 2. Search Input */}
       <input
-        className="h-full text-sm md:text-base lg:text-lg text-amazon-blue flex-grow outline-none border-none px-2 bg-white rounded-none"
+        className="h-full md:w-fit  text-sm md:text-base lg:text-lg text-amazon-blue flex-grow outline-none border-none px-2 bg-white rounded-none"
         type="text"
         placeholder="Search Amazon"
         value={inputText}
