@@ -11,9 +11,9 @@ const AddProduct = () => {
     title: "",
     price: "",
     description: "",
-    category: "electronics", // Default category
-    image: "", // We will paste a URL here
-    rating: { rate: 0, count: 0 } // Initialize rating
+    category: "electronics", 
+    image: "", 
+    rating: { rate: 0, count: 0 } 
   });
 
   const handleChange = (e) => {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteItem,
+import { 
+  deleteItem,
   resetCart,
   addToCart,    
   decreaseQty,
@@ -9,11 +10,12 @@ import { deleteItem,
   selectTotalPrice,
  } from "../redux/cartSlice";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-// import { emptyCart } from "../assets/index"; // Ensure you have this image or remove it
 import { motion } from "framer-motion";
-import { Link,useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { logo } from "../src/assets";
-import { tr } from "framer-motion/client";
+
+// 1. Import Wishlist Context
+import { useWishlist } from "../src/context/wishList.context"; 
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -21,7 +23,18 @@ const Cart = () => {
   const totalQty = useSelector(selectTotalQty);
   const totalPrice = useSelector(selectTotalPrice);
   const [payNow, setPayNow] = useState(false);
- const navigate  = useNavigate()
+  const navigate  = useNavigate();
+
+  // 2. Get the function
+  const { addToWishlist } = useWishlist(); 
+
+  const handleSaveForLater = (item) => {
+    // A. Add to Wishlist
+    addToWishlist(item);
+    // B. Remove from Cart
+    dispatch(deleteItem(item.id));
+  };
+
   // === EMPTY CART STATE ===
   if (products.length === 0) {
     return (
@@ -32,7 +45,6 @@ const Cart = () => {
         className="flex flex-col items-center justify-center gap-4 py-20 bg-white"
       >
         <div className="flex flex-col items-center">
-            {/* If you don't have this image, just remove the img tag */}
             <img 
                 className="w-80 rounded-lg p-4 mx-auto" 
                 src={logo}
@@ -133,7 +145,11 @@ const Cart = () => {
                     
                     <div className="w-[1px] h-4 bg-gray-400"></div>
 
-                     <p className="text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer">
+                     {/* 3. UPDATED "SAVE FOR LATER" BUTTON */}
+                     <p 
+                        onClick={() => handleSaveForLater(item)}
+                        className="text-xs text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                     >
                         Save for later
                     </p>
                   </div>
@@ -176,24 +192,15 @@ const Cart = () => {
                     </p>
                 </div>
 
-              
-
                 <button 
-                    onClick={() =>( 
-                      navigate("/checkout"),
-                      setPayNow(true)
-                    )}
+                    onClick={() => {
+                      navigate("/checkout");
+                      setPayNow(true);
+                    }}
                     className="w-full bg-amazon-yellow hover:bg-yellow-500 py-2 rounded-md font-medium text-sm shadow-sm transition-colors border border-yellow-500"
                 >
                     Proceed to Checkout
                 </button>
-                
-                {/* Payment Modal/Placeholder */}
-                {payNow && (
-                    <div className="w-full mt-4 p-2 border border-green-500 text-green-700 text-xs rounded bg-green-50 text-center">
-                        Payment gateway connected!
-                    </div>
-                )}
              </div>
         </div>
 

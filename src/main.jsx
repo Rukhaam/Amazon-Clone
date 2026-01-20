@@ -11,6 +11,9 @@ import { OrdersProvider } from "./context/orders.context.jsx";
 import { CheckoutProvider } from "./context/checkout.cotext.jsx";
 import { CartProvider } from "./context/cart.context.jsx";
 import { AdminProvider } from "./context/adminOrder.context.jsx";
+import { ReviewsProvider } from "./context/reviewsContext.jsx";
+import { WishlistProvider } from "./context/wishList.context.jsx";
+import { AddressProvider } from "./context/adresses.context.jsx";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>
@@ -19,13 +22,20 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <AuthProvider>
           <CartProvider>
             <ProductsProvider>
-              <OrdersProvider>
-                <CheckoutProvider>
-                  <AdminProvider>
-                  <App />
-                  </AdminProvider>
-                </CheckoutProvider>
-              </OrdersProvider>
+              <ReviewsProvider>
+                <OrdersProvider>
+                  <AddressProvider>
+                  <CheckoutProvider>
+                    <AdminProvider>
+                      <WishlistProvider>
+                      <App />
+                      </WishlistProvider>
+                    </AdminProvider>
+                    
+                  </CheckoutProvider>
+                  </AddressProvider>
+                </OrdersProvider>
+              </ReviewsProvider>
             </ProductsProvider>
           </CartProvider>
         </AuthProvider>

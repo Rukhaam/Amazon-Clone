@@ -17,6 +17,7 @@ const AdminDashboard = () => {
        + Add Product
     </Link>
     
+    {/* <Link to="/admin/migrate" className="hover:text-yellow-400">Migrate</Link> */}
     <Link to="/admin/products" className="hover:text-yellow-400">Manage Products</Link>
     <Link to="/admin/orders" className="hover:text-yellow-400">Manage Orders</Link>
     <Link to="/" className="mt-auto text-gray-400 hover:text-white">← Back to Site</Link>

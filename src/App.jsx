@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "../components/header/header.component";
 import Footer from "../components/footer/footer.component";
 import {
@@ -8,6 +8,7 @@ import {
   Route,
   RouterProvider,
   Navigate,
+  ScrollRestoration,
 } from "react-router-dom";
 import Home from "../pages/home.pages";
 import CategoryPage from "../pages/category.page";
@@ -19,14 +20,29 @@ import Registration from "../pages/register.page";
 import { useAuth } from "./context/auth.context";
 import Checkout from "../pages/checkout.page";
 import Orders from "../pages/orders.page";
-
+import Wishlist from "../pages/wihslist.page";
 // === NEW ADMIN IMPORTS ===
 import AdminRoute from "../components/admin/adminRoute.component";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import AddProduct from "../pages/admin/addProduct.page";
 import AdminOrders from "../pages/admin/adminOrders.page";
 import AdminProducts from "../pages/admin/adminProducts.page";
-const Layout = () => {
+import AddressPage from "../pages/adress.page";
+// import MigrateData from "../components/admin/migrateData.component";
+// 1. ROOT LAYOUT
+// Wraps the ENTIRE app to ensure ScrollRestoration works everywhere.
+const RootLayout = () => {
+  return (
+    <>
+      <ScrollRestoration />
+      <Outlet />
+    </>
+  );
+};
+
+// 2. PUBLIC LAYOUT
+// Wraps only the customer-facing pages (Header + Footer).
+const PublicLayout = () => {
   return (
     <div>
       <Header />
@@ -39,23 +55,25 @@ const Layout = () => {
 function App() {
   const { currentUser } = useAuth();
 
-  // NOTE: useCartSync() is removed because CartProvider in main.jsx now handles syncing.
-
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route>
-        {/* === PUBLIC LAYOUT ROUTES === */}
-        <Route path="/" element={<Layout />}>
+      // Wrap EVERYTHING in RootLayout so scroll works on Admin/Auth pages too
+      <Route element={<RootLayout />}>
+        {/* === PUBLIC ROUTES (With Header/Footer) === */}
+        <Route path="/" element={<PublicLayout />}>
           <Route index element={<Home />} />
-          <Route path="/category/:category" element={<CategoryPage />} />
-          <Route path="/product/:id" element={<ProductDetails />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/search" element={<SearchResults />} />
-          <Route path="/checkout" element={<Checkout />} />
+          <Route path="category/:category" element={<CategoryPage />} />
+          <Route path="product/:id" element={<ProductDetails />} />
+          <Route path="orders" element={<Orders />} />
+          <Route path="cart" element={<Cart />} />
+          <Route path="search" element={<SearchResults />} />
+          <Route path="wishlist" element={<Wishlist />} />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="addresses" element={<AddressPage />} />
+          
         </Route>
 
-        {/* === ADMIN ROUTES (Protected & Separate Layout) === */}
+        {/* === ADMIN ROUTES (Different Layout) === */}
         <Route
           path="/admin"
           element={
@@ -64,7 +82,6 @@ function App() {
             </AdminRoute>
           }
         >
-          {/* Define sub-routes for the admin panel here */}
           <Route
             index
             element={<h2 className="p-4">Welcome to Admin Dashboard</h2>}
@@ -74,7 +91,7 @@ function App() {
           <Route path="products" element={<AdminProducts />} />
         </Route>
 
-        {/* === AUTH ROUTES === */}
+        {/* === AUTH ROUTES (No Header/Footer) === */}
         <Route
           path="/signin"
           element={currentUser ? <Navigate to="/" replace /> : <SignIn />}

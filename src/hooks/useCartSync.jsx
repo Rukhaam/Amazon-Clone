@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebase.utils";
-import { selectUser } from "../../redux/user/userSlice"; // Actually, use context or selectUser from auth
+import { selectUser } from "../../redux/user/userSlice"; 
 import { selectProducts, setCart } from "../../redux/cartSlice";
 import { useAuth } from "../context/auth.context";
 
@@ -19,8 +19,6 @@ const useCartSync = () => {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          // If user has a saved cart, load it into Redux
-          // Note: In a real app, you might want to MERGE local items here instead of overwriting
           dispatch(setCart(docSnap.data().products));
           console.log("Cart loaded from cloud");
         }

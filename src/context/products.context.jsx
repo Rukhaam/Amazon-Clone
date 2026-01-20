@@ -1,46 +1,40 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
-import { 
-  collection, 
-  getDocs, 
-  doc, 
-  getDoc 
-} from "firebase/firestore";
-import { db } from "../../firebase/firebase.utils"; // <--- CHECK THIS PATH matches your project structure
+// import axios from "axios"; <--- REMOVE THIS
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase/firebase.utils"; 
 
 export const ProductsContext = createContext();
 
 export const ProductsProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 1. Fetch ALL Products (Run once on mount)
+  // 1. Fetch Products (ONLY FROM FIREBASE NOW)
   useEffect(() => {
     const fetchAllProducts = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // A. Fetch from External API (The "Base" Catalog)
-        const apiResponse = await axios.get("https://fakestoreapi.com/products");
-        const apiProducts = apiResponse.data;
-
-        // B. Fetch from Your Firebase (The "Custom" Products)
+        // Fetch everything from 'products' collection
         const querySnapshot = await getDocs(collection(db, "products"));
+        
         const firebaseProducts = querySnapshot.docs.map((doc) => ({
-          id: doc.id, // Firestore IDs are strings
+          id: doc.id, 
           ...doc.data(),
         }));
 
-        // C. Merge Them!
-        // We put Firebase products FIRST so new items appear at the top
-        const combinedProducts = [...firebaseProducts, ...apiProducts];
+        setProducts(firebaseProducts);
 
-        setProducts(combinedProducts);
+        // Extract Categories
+        const uniqueCategories = [...new Set(firebaseProducts.map(item => item.category))];
+        setCategories(uniqueCategories);
+
       } catch (err) {
         console.error("Error fetching products:", err);
-        setError("Failed to load products.");
+        setError("Failed to load products from database.");
       } finally {
         setLoading(false);
       }
@@ -49,45 +43,33 @@ export const ProductsProvider = ({ children }) => {
     fetchAllProducts();
   }, []);
 
-  // 2. HELPER: Fetch Single Product (Used by ProductDetails page)
+  // 2. HELPER: Fetch Single Product
   const fetchProductById = async (id) => {
-    // A. Cache Check: Do we already have it in the main list?
-    // We convert both to String comparisons to be safe
+    // Check memory first
     const found = products.find((item) => String(item.id) === String(id));
-    
-    if (found) {
-        return found; // Return instantly (Fast!)
-    }
+    if (found) return found;
 
-    // B. Network Fetch: If not found (e.g., user refreshed on details page)
     try {
-        // Logic: Firebase IDs are long strings (>5 chars). API IDs are short numbers.
-        if (String(id).length > 5) {
-            // Fetch from Firebase
-            const docRef = doc(db, "products", id);
-            const snapshot = await getDoc(docRef);
-            
-            if (snapshot.exists()) {
-                return { id: snapshot.id, ...snapshot.data() };
-            }
-        } else {
-            // Fetch from FakeStoreAPI
-            const res = await axios.get(`https://fakestoreapi.com/products/${id}`);
-            return res.data;
+        // Fetch from Firebase directly
+        const docRef = doc(db, "products", id);
+        const snapshot = await getDoc(docRef);
+        
+        if (snapshot.exists()) {
+            return { id: snapshot.id, ...snapshot.data() };
         }
     } catch (error) {
         console.error("Error fetching single product:", error);
         return null;
     }
-    
-    return null; // Not found
+    return null; 
   };
 
   const value = {
     products,
+    categories,
     loading,
     error,
-    fetchProductById, // <--- Exporting the new helper
+    fetchProductById, 
   };
 
   return (

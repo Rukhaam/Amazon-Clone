@@ -4,24 +4,23 @@ import {
   Close,
   Menu as MenuIcon,
   ArrowBack,
-} from "@mui/icons-material"; // Added ArrowBack
+} from "@mui/icons-material"; 
 import { motion } from "framer-motion";
 import SideNavContent from "./sideNavContent";
 
 const BottomHeader = () => {
   const [open, setOpen] = useState(false);
-  const [sidebarView, setSidebarView] = useState("main"); // "main" | "electronics" | "computers" etc.
+  const [sidebarView, setSidebarView] = useState("main"); 
   const ref = useRef();
 
   useEffect(() => {
     document.body.addEventListener("click", (e) => {
-      if (e.target.contains(ref.current)) {
+      if (ref.current && !ref.current.contains(e.target) && !e.target.closest('.menu-trigger')) {
         setOpen(false);
       }
     });
-  }, [ref, open]);
+  }, [open]);
 
-  // Reset view to main when closing the sidebar
   useEffect(() => {
     if (!open) {
       setSidebarView("main");
@@ -29,39 +28,33 @@ const BottomHeader = () => {
   }, [open]);
 
   // --- MENU DATA ---
-
-  // 1. Digital Content Items
   const digitalContent = [
     { title: "Amazon Music", action: null },
     { title: "Kindle E-readers & Books", action: null },
     { title: "Amazon Appstore", action: null },
   ];
 
-  // 2. Shop By Department Items (Clicking Electronics changes state)
   const shopByDepartment = [
     {
       title: "Electronics",
-      action: () => setSidebarView("electronics"), // <--- TRIGGER SUB-MENU
+      action: () => setSidebarView("electronics"), 
     },
     { title: "Computers", action: null },
     { title: "Smart Home", action: null },
   ];
 
-  // 3. Program Items
   const programs = [
     { title: "Gift Cards", action: null },
     { title: "Amazon Live", action: null },
     { title: "International Shopping", action: null },
   ];
 
-  // 4. Help Items
   const help = [
     { title: "Your Account", action: null },
     { title: "Customer Service", action: null },
     { title: "Contact Us", action: null },
   ];
 
-  // --- SUB-MENUS ---
   const electronicsItems = [
     { title: "Camera & Photo", action: null },
     { title: "Audio & Headphones", action: null },
@@ -71,38 +64,45 @@ const BottomHeader = () => {
   ];
 
   return (
-    <div className="w-full px-4 h-9 bg-amazon-light text-white flex items-center">
+    <div className="w-full px-4 h-9 lg:h-10 bg-amazon-light text-white flex items-center overflow-x-auto no-scrollbar">
       {/* Trigger Button */}
-      <ul className="flex items-center gap-2 text-sm tracking-wide">
-        <li className="headerHover gap-1" onClick={() => setOpen(true)}>
+      <ul className="flex items-center gap-2 lg:gap-4 text-sm lg:text-base tracking-wide whitespace-nowrap">
+        <li className="headerHover gap-1 menu-trigger flex items-center font-bold px-2" onClick={(e) => { e.stopPropagation(); setOpen(true); }}>
           <MenuIcon /> All
         </li>
-        <li className="headerHover hidden md:inline-flex">Today's Deals</li>
-        <li className="headerHover hidden md:inline-flex">Customer Service</li>
-        <li className="headerHover hidden md:inline-flex">Gift Cards</li>
-        <li className="headerHover hidden md:inline-flex">Registry</li>
-        <li className="headerHover hidden md:inline-flex">Sell</li>
+        <li className="headerHover hidden md:inline-flex px-2">Today's Deals</li>
+        <li className="headerHover hidden md:inline-flex px-2">Customer Service</li>
+        <li className="headerHover hidden md:inline-flex px-2">Gift Cards</li>
+        <li className="headerHover hidden md:inline-flex px-2">Registry</li>
+        <li className="headerHover hidden md:inline-flex px-2">Sell</li>
       </ul>
 
       {/* Sidebar Overlay */}
       {open && (
-        <div className="w-full h-screen text-black fixed top-0 left-0 bg-amazon-blue/50 z-[50]">
+        <div className="w-full h-screen text-black fixed top-0 left-0 bg-amazon-blue/70 z-[100] transition-opacity">
           <div className="w-full h-full relative">
             <motion.div
               ref={ref}
               initial={{ x: -500, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.4 }}
-              className="w-[350px] h-full bg-white border border-black overflow-y-scroll pb-10"
+              transition={{ duration: 0.3 }}
+              className="w-[85%] md:w-[350px] lg:w-[400px] h-full bg-white border-r border-black overflow-y-scroll pb-10 relative"
             >
-              <div className="w-full bg-amazon-light text-white py-3 px-5 flex items-center gap-4 text-lg font-semibold sticky top-0 z-50">
-                <AccountCircle />
-                <h3>Hello, Sign-In</h3>
+              <div 
+                onClick={() => setOpen(false)}
+                className="absolute top-2 -right-12 w-10 h-10 text-white flex items-center justify-center cursor-pointer md:fixed md:left-[360px] lg:left-[410px] md:top-4 z-50"
+              >
+                <Close fontSize="large" />
+              </div>
+
+              <div className="w-full bg-amazon-light text-white py-3 px-5 flex items-center gap-4 text-lg lg:text-xl font-bold sticky top-0 z-40">
+                <AccountCircle fontSize="large" />
+                <h3>Hello, { "Sign in" }</h3>
               </div>
 
               {/* === MAIN MENU VIEW === */}
               {sidebarView === "main" && (
-                <>
+                <div className="animate-fadeIn">
                   <SideNavContent
                     title="Digital Content & Devices"
                     items={digitalContent}
@@ -116,16 +116,16 @@ const BottomHeader = () => {
                     items={programs}
                   />
                   <SideNavContent title="Help and Settings" items={help} />
-                </>
+                </div>
               )}
 
               {/* === ELECTRONICS SUB-MENU VIEW === */}
               {sidebarView === "electronics" && (
-                <div className="w-full">
+                <div className="w-full animate-fadeInRight">
                   {/* Back Button */}
                   <div
                     onClick={() => setSidebarView("main")}
-                    className="py-3 px-6 text-lg font-semibold cursor-pointer hover:bg-zinc-200 border-b border-gray-300 flex items-center gap-2"
+                    className="py-3 px-6 text-lg lg:text-xl font-semibold cursor-pointer hover:bg-zinc-200 border-b border-gray-300 flex items-center gap-2 sticky top-[52px] bg-white z-30"
                   >
                     <ArrowBack /> Main Menu
                   </div>
@@ -137,14 +137,6 @@ const BottomHeader = () => {
                   />
                 </div>
               )}
-
-              {/* Close Button */}
-              <span
-                onClick={() => setOpen(false)}
-                className="cursor-pointer absolute top-5 left-[360px] w-10 h-10 text-white flex items-center justify-center border bg-transparent hover:bg-red-500 duration-200"
-              >
-                <Close />
-              </span>
             </motion.div>
           </div>
         </div>

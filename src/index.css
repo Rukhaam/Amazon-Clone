@@ -46,3 +46,7 @@
     @apply px-2 h-[80%] flex items-center border border-transparent hover:border-white cursor-pointer duration-100; 
    }
 }
+
+html {
+  scroll-behavior: smooth;
+}

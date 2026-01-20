@@ -2,12 +2,23 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { addToCart } from "../../redux/cartSlice";
+import { useWishlist } from "../../src/context/wishList.context"; // <--- 1. Import Wishlist Hook
 import LockClosedOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 const BuyBox = ({ product }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { addToWishlist } = useWishlist(); // <--- 2. Get the function
   const [qty, setQty] = useState(1);
+
+  // 3. Dynamic Date (e.g., "Monday, Jan 25") instead of raw numbers
+  const deliveryDate = new Date();
+  deliveryDate.setDate(deliveryDate.getDate() + 3); // Default 3 days shipping
+  const formattedDate = deliveryDate.toLocaleDateString("en-US", { 
+    weekday: 'long', 
+    month: 'short', 
+    day: 'numeric' 
+  });
 
   // === HANDLER: BUY NOW ===
   const handleBuyNow = () => {
@@ -40,15 +51,16 @@ const BuyBox = ({ product }) => {
 
   return (
     <div className="w-full border border-gray-300 rounded-lg p-4 flex flex-col gap-3 bg-white">
-      {/* Price */}
+      {/* Price Section */}
       <div className="flex items-start gap-1">
         <span className="text-sm pt-1">$</span>
-        <span className="text-xl font-medium text-red-700">{product.price}</span>
+        <span className="text-xl font-medium text-red-700">{Math.floor(product.price)}</span>
+        <span className="text-sm pt-1">{(product.price % 1).toFixed(2).substring(1)}</span>
       </div>
 
       {/* Delivery Info */}
       <div className="text-sm text-gray-600">
-        $15.00 delivery <span className="font-bold text-black">Monday, June 10</span>
+        $15.00 delivery <span className="font-bold text-black">{formattedDate}</span>
       </div>
 
       <p className="text-lg font-medium text-green-700">In Stock</p>
@@ -69,7 +81,7 @@ const BuyBox = ({ product }) => {
         </select>
       </div>
 
-      {/* Buttons */}
+      {/* Action Buttons */}
       <button
         onClick={handleAddToCart}
         className="w-full bg-amazon-yellow hover:bg-[#f3a847] py-1.5 rounded-full text-sm font-medium shadow-sm transition-colors border border-yellow-500 cursor-pointer"
@@ -96,6 +108,18 @@ const BuyBox = ({ product }) => {
           <span>Sold by</span> <span className="text-black">Amazon.com</span>
         </div>
       </div>
+
+      {/* Divider */}
+      <div className="border-t border-gray-200 my-2"></div>
+
+      {/* === 4. NEW WISHLIST BUTTON === */}
+      <button 
+        onClick={() => addToWishlist(product)}
+        className="w-full bg-white hover:bg-gray-50 py-1.5 rounded-md text-sm text-gray-800 shadow-sm border border-gray-400 text-left px-3 transition-colors cursor-pointer"
+      >
+        Add to Wish List
+      </button>
+
     </div>
   );
 };
