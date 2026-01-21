@@ -24,7 +24,7 @@ export const filterSlice = createSlice({
     },
     resetFilters: (state) => {
       state.minPrice = 0;
-      state.maxPrice = 5000;
+      state.maxPrice = 50000;
       state.minRating = 0;
       state.sortOrder = "relevant";
     },

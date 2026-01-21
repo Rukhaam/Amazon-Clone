@@ -12,15 +12,11 @@ const AdminProducts = () => {
       setDeletingId(id);
       const success = await deleteProduct(id);
       if (success) {
-        // Optional: Trigger a refresh if your ProductsContext doesn't auto-sync
-        // Since ProductsContext fetches once on mount, you might need to reload 
-        // the page to see the item disappear, or we can force a reload:
         window.location.reload(); 
       }
       setDeletingId(null);
     }
   };
-
   if (loading) return <div className="p-10 text-center">Loading Products...</div>;
 
   return (

@@ -25,14 +25,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
               <ReviewsProvider>
                 <OrdersProvider>
                   <AddressProvider>
-                  <CheckoutProvider>
-                    <AdminProvider>
-                      <WishlistProvider>
-                      <App />
-                      </WishlistProvider>
-                    </AdminProvider>
-                    
-                  </CheckoutProvider>
+                    <CheckoutProvider>
+                      <AdminProvider>
+                        <WishlistProvider>
+                          <App />
+                        </WishlistProvider>
+                      </AdminProvider>
+                    </CheckoutProvider>
                   </AddressProvider>
                 </OrdersProvider>
               </ReviewsProvider>

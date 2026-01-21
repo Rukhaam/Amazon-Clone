@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
@@ -20,10 +20,11 @@ const Checkout = () => {
   const products = useSelector(selectProducts);
   const totalQty = useSelector(selectTotalQty);
   const totalPrice = useSelector(selectTotalPrice);
-
   // Context Data (for validation UI only)
   const { selectedAddress } = useAddress(); 
   const { checkoutError } = useCheckout(); 
+
+
 
   return (
     <div className="w-full bg-gray-100 p-4 md:p-8 font-bodyFont min-h-screen">
@@ -94,13 +95,29 @@ const Checkout = () => {
 
           {/* === INTEGRATED PAYMENT BUTTON === */}
           {/* This component now handles the Razorpay click */}
-          <PaymentBtn />
+     {
+      selectedAddress&&products.length>0 ? (
+        <PaymentBtn></PaymentBtn>
+      ) : (
+        <button 
+                disabled
+                className="w-full bg-gray-300 border border-gray-400 text-gray-500 rounded-md py-2 text-sm font-medium shadow-sm cursor-not-allowed"
+             >
+                Proceed to Pay
+             </button>
+      )
+     }
+        
+  
+        
 
           {/* Helper Text for User Feedback */}
           {!selectedAddress && products.length > 0 && (
-              <p className="text-red-500 text-xs mt-3 text-center">
+              <p className="text-red-500 text-xs mt-3 text-center" >
                   * Please select a delivery address to pay
+
               </p>
+             
           )}
 
           <div className="text-xs text-gray-500 mt-4 text-center leading-4">

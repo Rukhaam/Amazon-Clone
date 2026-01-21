@@ -9,12 +9,10 @@ const CategoryFeed = () => {
   if (!categories || categories.length === 0) return null;
 
   return (
-    // Wrapper: Pulls up over the banner (-mt-32) and stays on top (z-20)
     <div className="w-full max-w-screen-2xl mx-auto px-4 md:px-8 -mt-16 md:-mt-32 relative z-20 mb-10">
       {/* Grid: 1 column on mobile, 4 columns on desktop (Amazon Style) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {categories.map((category) => {
-          // Get the single "Hero Image" for this category (Amazon usually shows 1 big image or a 2x2 grid)
           const categoryProduct = products.find(
             (item) => item.category === category
           );

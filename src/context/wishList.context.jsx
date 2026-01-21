@@ -52,7 +52,7 @@ export const WishlistProvider = ({ children }) => {
       return;
     }
 
-    // Check duplicates
+
     const alreadyExists = wishlist.find(item => item.productId === product.id);
     if (alreadyExists) {
       alert("This item is already in your Wish List.");

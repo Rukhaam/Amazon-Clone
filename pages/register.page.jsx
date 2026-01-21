@@ -10,7 +10,6 @@ const Registration = () => {
   const [cPassword, setCPassword] = useState("");
 
   const navigate = useNavigate();
-  // Grab master handler from Context
   const { handleRegister, authLoading, authError, setAuthError } = useAuth();
 
   useEffect(() => {
@@ -19,7 +18,6 @@ const Registration = () => {
 
   const onSubmit = (e) => {
     e.preventDefault();
-    // Pass everything + navigate to context
     handleRegister(email, password, cPassword, clientName, navigate);
   };
 

@@ -16,7 +16,7 @@ const Wishlist = () => {
         price: item.price, 
         quantity: 1 
     }));
-    removeFromWishlist(item.id); // Optional: Remove from wishlist after adding to cart
+    removeFromWishlist(item.id); 
   };
 
   if (loading) return <div className="p-10 text-center">Loading Wish List...</div>;

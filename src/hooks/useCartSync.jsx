@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebase.utils";
-import { selectUser } from "../../redux/user/userSlice"; 
 import { selectProducts, setCart } from "../../redux/cartSlice";
 import { useAuth } from "../context/auth.context";
 

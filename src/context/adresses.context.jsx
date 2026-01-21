@@ -1,15 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { 
-  collection, 
-  query, 
-  where, 
-  getDocs, 
-  addDoc, 
-  deleteDoc, // <--- 1. Import deleteDoc
-  doc,       // <--- 2. Import doc
-  serverTimestamp 
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
 } from "firebase/firestore";
-import { db } from "../../firebase/firebase.utils"; 
+import { db } from "../../firebase/firebase.utils";
 import { useAuth } from "../../src/context/auth.context";
 
 const AddressContext = createContext();
@@ -20,11 +20,10 @@ export const AddressProvider = ({ children }) => {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Fetch Addresses (Run on mount or user change)
   useEffect(() => {
     if (!currentUser) {
-        setAddresses([]);
-        return;
+      setAddresses([]);
+      return;
     }
 
     const fetchAddresses = async () => {
@@ -35,10 +34,11 @@ export const AddressProvider = ({ children }) => {
           where("userId", "==", currentUser.uid)
         );
         const snapshot = await getDocs(q);
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setAddresses(data);
-        
-        // Auto-select first one if none selected
         if (data.length > 0 && !selectedAddress) setSelectedAddress(data[0]);
       } catch (error) {
         console.error("Error fetching addresses:", error);
@@ -61,8 +61,8 @@ export const AddressProvider = ({ children }) => {
       };
       const docRef = await addDoc(collection(db, "addresses"), addressData);
       const savedAddress = { id: docRef.id, ...addressData };
-      
-      setAddresses(prev => [...prev, savedAddress]);
+
+      setAddresses((prev) => [...prev, savedAddress]);
       setSelectedAddress(savedAddress);
       return true;
     } catch (error) {
@@ -70,33 +70,30 @@ export const AddressProvider = ({ children }) => {
       return false;
     }
   };
-
-  // 3. NEW: Delete Address
   const deleteAddress = async (addressId) => {
-     try {
-        await deleteDoc(doc(db, "addresses", addressId));
-        // Update Local State
-        const updatedList = addresses.filter(addr => addr.id !== addressId);
-        setAddresses(updatedList);
-        
-        // If we deleted the selected one, select the next available
-        if (selectedAddress?.id === addressId) {
-            setSelectedAddress(updatedList.length > 0 ? updatedList[0] : null);
-        }
-     } catch (error) {
-         console.error("Error deleting address:", error);
-     }
+    try {
+      await deleteDoc(doc(db, "addresses", addressId));
+
+      const updatedList = addresses.filter((addr) => addr.id !== addressId);
+      setAddresses(updatedList);
+
+      if (selectedAddress?.id === addressId) {
+        setSelectedAddress(updatedList.length > 0 ? updatedList[0] : null);
+      }
+    } catch (error) {
+      console.error("Error deleting address:", error);
+    }
   };
 
   return (
-    <AddressContext.Provider 
-      value={{ 
-        addresses, 
-        selectedAddress, 
-        setSelectedAddress, 
-        saveAddress, 
+    <AddressContext.Provider
+      value={{
+        addresses,
+        selectedAddress,
+        setSelectedAddress,
+        saveAddress,
         deleteAddress, // Export it
-        loading 
+        loading,
       }}
     >
       {children}

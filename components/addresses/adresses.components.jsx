@@ -5,8 +5,7 @@ import AddIcon from "@mui/icons-material/Add";
 
 const AddressManager = () => {
   const { addresses, selectedAddress, setSelectedAddress } = useAddress();
-  
-  // NOTE: Inline form removed. We now redirect to the main Address Page.
+
 
   return (
     <div className="bg-white p-6 rounded-md shadow-sm border border-gray-200 mb-6">

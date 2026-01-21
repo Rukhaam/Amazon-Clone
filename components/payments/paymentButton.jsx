@@ -1,21 +1,24 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-// 1. IMPORT selectProducts
-import { selectTotalPrice, selectProducts, resetCart } from "../../redux/cartSlice";
-import { useAuth } from "../../src/context/auth.context"; 
+import {
+  selectTotalPrice,
+  selectProducts,
+  resetCart,
+} from "../../redux/cartSlice";
+import { useAuth } from "../../src/context/auth.context";
 import { db } from "../../firebase/firebase.utils";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { logo } from "../../src/assets/index"; 
+import { logo } from "../../src/assets/index";
 
 const PaymentBtn = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-  
+
   const amount = useSelector(selectTotalPrice);
-  const products = useSelector(selectProducts); 
-  
+  const products = useSelector(selectProducts);
+
   const [loading, setLoading] = useState(false);
 
   const loadRazorpay = () => {
@@ -30,8 +33,8 @@ const PaymentBtn = () => {
 
   const handlePayment = async () => {
     if (!currentUser) {
-        navigate("/signin");
-        return;
+      navigate("/signin");
+      return;
     }
 
     setLoading(true);
@@ -44,7 +47,7 @@ const PaymentBtn = () => {
     }
 
     const options = {
-      key: import.meta.env.VITE_RAZOR_PAY_KEY, // Replace with your Test Key
+      key: import.meta.env.VITE_RAZOR_PAY_KEY,
       amount: amount * 100,
       currency: "INR",
       name: "Amazon Clone",
@@ -68,32 +71,31 @@ const PaymentBtn = () => {
 
   const saveOrder = async (paymentResponse) => {
     try {
-        await addDoc(collection(db, "orders"), {
-            userId: currentUser.uid,
-            email: currentUser.email,
-            amount: amount,
-            paymentId: paymentResponse.razorpay_payment_id,
-            createdAt: serverTimestamp(),
-            status: "Shipping",
-            items: products, 
-        });
+      await addDoc(collection(db, "orders"), {
+        userId: currentUser.uid,
+        email: currentUser.email,
+        amount: amount,
+        paymentId: paymentResponse.razorpay_payment_id,
+        createdAt: serverTimestamp(),
+        status: "Shipping",
+        items: products,
+      });
 
-        dispatch(resetCart());
-        navigate("/orders");
-        
+      dispatch(resetCart());
+      navigate("/orders");
     } catch (error) {
-        console.error("Error saving order:", error);
+      console.error("Error saving order:", error);
     }
   };
 
   return (
-    <button 
+    <button
       onClick={handlePayment}
       disabled={loading}
       className={`w-full py-3 rounded-md font-medium text-sm shadow-sm transition-colors border border-yellow-500 ${
-          loading 
-            ? "bg-gray-300 cursor-not-allowed" 
-            : "bg-[#FFD814] hover:bg-[#F7CA00]"
+        loading
+          ? "bg-gray-300 cursor-not-allowed"
+          : "bg-[#FFD814] hover:bg-[#F7CA00]"
       }`}
     >
       {loading ? "Processing..." : `Pay ₹${amount.toFixed(2)}`}

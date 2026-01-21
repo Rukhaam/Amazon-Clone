@@ -15,10 +15,14 @@ const UserDropdown = () => {
   };
 
   return (
-    // ADJUSTED: lg:w-[600px] xl:w-[700px]
-    <div className="absolute top-11 right-[-90px] md:right-0 w-[260px] md:w-[500px] lg:w-[600px] xl:w-[700px] bg-white text-black border border-gray-200 rounded-sm shadow-xl z-50 overflow-hidden cursor-default font-bodyFont">
+    // FIX: 
+    // 1. right-[-20px]: Pushes it slightly right of the icon, but keeps it on screen (was -90px).
+    // 2. w-[270px]: Fits perfectly on a 325px screen.
+    // 3. max-w-[95vw]: Ensures it never exceeds the screen width.
+    <div className="absolute top-11 right-[-190px] md:right-0 w-[270px] md:w-[500px] lg:w-[600px] xl:w-[700px] max-w-[95vw] bg-white text-black border border-gray-200 rounded-sm shadow-xl z-50 overflow-hidden cursor-default font-bodyFont">
       
-      <div className="absolute -top-2 right-14 md:right-8 w-4 h-4 bg-white transform rotate-45 border-l border-t border-gray-200"></div>
+      {/* Triangle Tip: Adjusted to right-8 to point to the account icon */}
+      <div className="absolute -top-2 right-8 md:right-8 w-4 h-4 bg-white transform rotate-45 border-l border-t border-gray-200"></div>
 
       {!currentUser && (
         <div className="flex flex-col items-center justify-center gap-1 py-4 border-b border-gray-200 bg-gray-50">
@@ -38,7 +42,7 @@ const UserDropdown = () => {
         </div>
       )}
 
-      {/* MENU COLUMNS: Added lg:gap-8 lg:px-8 */}
+      {/* MENU COLUMNS */}
       <div className="flex flex-col md:flex-row px-4 md:px-6 lg:px-8 py-4 gap-4 lg:gap-8">
         
         {/* LEFT COLUMN */}

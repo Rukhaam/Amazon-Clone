@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom"; // <--- 1. Import Link
+import { Link } from "react-router-dom"; 
 import { ProductsContext } from "../../src/context/products.context";
-// 2. Import the CARD, not the LIST (Adjust path if needed)
 import HomeSectionCard from "../home/homeSection.card";
 
 const RelatedProducts = ({ category, currentProductId }) => {

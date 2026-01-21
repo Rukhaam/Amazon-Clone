@@ -8,10 +8,7 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
   
   const navigate = useNavigate();
-  // Grab everything from Context
   const { handleLogin, authLoading, authError, setAuthError } = useAuth();
-
-  // Clear errors when visiting the page
   useEffect(() => {
     setAuthError("");
   }, []);
