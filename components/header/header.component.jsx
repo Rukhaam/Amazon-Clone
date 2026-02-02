@@ -19,9 +19,7 @@ const Header = () => {
 
   return (
     <div className="w-full bg-amazon-blue sticky top-0 z-50 font-bodyFont">
-      
-      <div className="mx-auto text-white px-1 sm:px-2 md:px-4 py-2 lg:py-3 flex flex-wrap lg:flex-nowrap items-center gap-0 sm:gap-2 md:gap-4 justify-between">
-        
+      <div className="mx-auto text-white px-1 sm:px-2 md:px-4 py-2 lg:py-3 flex flex-wrap lg:flex-nowrap items-center gap-0 sm:gap-2 md:gap-4 justify-evenly">
         {/* 1. Logo */}
         <Link to="/">
           <div className="headerHover border border-transparent hover:border-white rounded-sm p-1">
@@ -38,7 +36,10 @@ const Header = () => {
           onClick={() => setShowLocationModal(true)}
           className="headerHover flex cursor-pointer border border-transparent hover:border-white rounded-sm p-0 sm:p-1 items-center gap-1 order-2 lg:order-none"
         >
-          <LocationOnOutlineIcon className="mb-1 lg:scale-110" sx={{ fontSize: { xs: 16, sm: 20, md: 24 } }} />
+          <LocationOnOutlineIcon
+            className="mb-1 lg:scale-110"
+            sx={{ fontSize: { xs: 16, sm: 20, md: 24 } }}
+          />
           <p className="text-[10px] lg:text-sm text-light-text font-light flex flex-col leading-tight">
             <span className="opacity-70 hidden sm:inline">Deliver to</span>
             <span className="text-[10px] lg:text-sm font-bold text-white-text truncate max-w-[70px] sm:max-w-[120px] lg:max-w-none">
@@ -58,13 +59,7 @@ const Header = () => {
 
         {/* Right Side Icons Wrapper */}
         <div className="flex items-center gap-0 sm:gap-1 md:gap-2 lg:gap-4 order-2 lg:order-none">
-          
           <HeaderAccount />
-
-          {/* 4. Orders 
-             - CHANGED: Removed 'hidden'. Now 'flex' always.
-             - UPDATED: Used 'text-[9px]' for mobile to fit tight spaces.
-          */}
           <Link to="/orders">
             <div className="flex flex-col items-start justify-center headerHover border border-transparent hover:border-white rounded-sm p-0 sm:p-1">
               <p className="text-[9px] sm:text-[10px] lg:text-xs text-light-text font-light">

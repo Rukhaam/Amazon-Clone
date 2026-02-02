@@ -27,7 +27,6 @@ const BottomHeader = () => {
     }
   }, [open]);
 
-  // ... (Keep existing arrays: digitalContent, shopByDepartment, etc.) ...
   const digitalContent = [
     { title: "Amazon Music", action: null },
     { title: "Kindle E-readers & Books", action: null },

@@ -15,13 +15,10 @@ const UserDropdown = () => {
   };
 
   return (
-    // FIX: 
-    // 1. right-[-20px]: Pushes it slightly right of the icon, but keeps it on screen (was -90px).
-    // 2. w-[270px]: Fits perfectly on a 325px screen.
-    // 3. max-w-[95vw]: Ensures it never exceeds the screen width.
+
     <div className="absolute top-11 right-[-190px] md:right-0 w-[270px] md:w-[500px] lg:w-[600px] xl:w-[700px] max-w-[95vw] bg-white text-black border border-gray-200 rounded-sm shadow-xl z-50 overflow-hidden cursor-default font-bodyFont">
       
-      {/* Triangle Tip: Adjusted to right-8 to point to the account icon */}
+
       <div className="absolute -top-2 right-8 md:right-8 w-4 h-4 bg-white transform rotate-45 border-l border-t border-gray-200"></div>
 
       {!currentUser && (

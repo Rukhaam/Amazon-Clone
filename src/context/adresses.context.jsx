@@ -92,7 +92,7 @@ export const AddressProvider = ({ children }) => {
         selectedAddress,
         setSelectedAddress,
         saveAddress,
-        deleteAddress, // Export it
+        deleteAddress,
         loading,
       }}
     >

@@ -65,7 +65,7 @@ const CategoryPage = () => {
               filteredProducts.map((item) => {
                 // === SOLD OUT CHECK ===
                 // If quantity is 0 or less, it is sold out.
-                // We assume undefined means "in stock" to be safe, or you can default to 0.
+                // We assume "undefined" means "in stock" to be safe, or can default to 0.
                 const isSoldOut = item.quantity !== undefined && item.quantity <= 0;
 
                 return (

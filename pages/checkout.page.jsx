@@ -9,11 +9,11 @@ import {
 
 // === CONTEXT IMPORTS ===
 import { useAddress } from "../src/context/adresses.context"; 
-import { useCheckout } from "../src/context/checkout.cotext"; // Keeping if you use it for other logic, otherwise optional now
+import { useCheckout } from "../src/context/checkout.cotext"; 
 
 // === COMPONENT IMPORTS ===
 import AddressManager from "../components/addresses/adresses.components"; 
-import PaymentBtn from "../components/payments/paymentButton"; // <--- IMPORT YOUR COMPONENT
+import PaymentBtn from "../components/payments/paymentButton";
 
 const Checkout = () => {
   // Redux Data
@@ -86,7 +86,7 @@ const Checkout = () => {
             </span>
           </div>
 
-          {/* Context Error Message (if any) */}
+          {/* Context Error Message*/}
           {checkoutError && (
              <p className="text-red-600 text-sm font-semibold mb-2 bg-red-50 p-2 rounded">
                 {checkoutError}
@@ -94,7 +94,6 @@ const Checkout = () => {
           )}
 
           {/* === INTEGRATED PAYMENT BUTTON === */}
-          {/* This component now handles the Razorpay click */}
      {
       selectedAddress&&products.length>0 ? (
         <PaymentBtn></PaymentBtn>

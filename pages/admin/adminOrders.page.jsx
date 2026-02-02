@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useAdmin } from "../../src/context/adminOrder.context"; 
 
 const AdminOrders = () => {
-  // Destructure what we need from the context
+
   const { 
     orders, 
     loadingOrders, 
@@ -10,7 +10,6 @@ const AdminOrders = () => {
     updateOrderStatus 
   } = useAdmin();
 
-  // Load orders when this page mounts
   useEffect(() => {
     fetchAllOrders();
   }, [fetchAllOrders]);
@@ -65,7 +64,7 @@ const AdminOrders = () => {
 
                   <td className="p-4">
                     <div className="flex flex-col gap-1">
-                      {/* FIX: Added Optional Chaining (?.) to prevent crash if items are missing */}
+                      {/* Optional Chaining (?.) to prevent crash if items are missing */}
                       {order.items?.map((item, index) => (
                         <span key={index} className="text-xs text-gray-600">
                            {item.quantity}x {item.title ? item.title.substring(0, 20) : "Item"}...
