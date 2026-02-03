@@ -7,8 +7,6 @@ import {
   resetCart,
 } from "../../redux/cartSlice";
 import { useAuth } from "../../src/context/auth.context";
-import { db } from "../../firebase/firebase.utils";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { logo } from "../../src/assets/index";
 
 const PaymentBtn = () => {
@@ -21,7 +19,6 @@ const PaymentBtn = () => {
 
   const [loading, setLoading] = useState(false);
 
-  // 1. Load Razorpay SDK
   const loadRazorpay = () => {
     return new Promise((resolve) => {
       const script = document.createElement("script");
@@ -32,7 +29,6 @@ const PaymentBtn = () => {
     });
   };
 
-  // 2. Handle Payment Initiation
   const handlePayment = async () => {
     if (!currentUser) {
       navigate("/signin");
@@ -42,7 +38,6 @@ const PaymentBtn = () => {
     setLoading(true);
 
     try {
-      // A. Load SDK
       const isLoaded = await loadRazorpay();
       if (!isLoaded) {
         alert("Razorpay SDK failed to load.");
@@ -50,7 +45,7 @@ const PaymentBtn = () => {
         return;
       }
 
-      // B. Create Order via BACKEND
+      // 1. Create Order on Server
       const response = await fetch(
         "http://localhost:5000/api/payment/create-order",
         {
@@ -63,24 +58,23 @@ const PaymentBtn = () => {
       const data = await response.json();
 
       if (!data.success) {
-        console.error("Server Error:", data);
         alert("Server error. Could not create order.");
         setLoading(false);
         return;
       }
 
-      // C. Open Razorpay Options
+      // 2. Open Razorpay
       const options = {
-        key: import.meta.env.VITE_RAZOR_PAY_KEY, // Public Key
+        key: import.meta.env.VITE_RAZOR_PAY_KEY,
         amount: data.order.amount,
         currency: data.order.currency,
         name: "Amazon Clone",
         description: "Transaction",
         image: logo,
-        order_id: data.order.id, // Order ID from Backend
+        order_id: data.order.id,
         handler: async function (response) {
-          // Verify signature on backend before saving
-          await verifyPayment(response);
+          // 3. Verify on backend AND SAVE DATA
+          await verifyAndSavePayment(response);
         },
         prefill: {
           name: currentUser.displayName || "User",
@@ -100,8 +94,8 @@ const PaymentBtn = () => {
     }
   };
 
-  // 3. Verify Signature
-  const verifyPayment = async (paymentResponse) => {
+  // 4. Verification Logic (The Fix)
+  const verifyAndSavePayment = async (paymentResponse) => {
     try {
       const verifyRes = await fetch(
         "http://localhost:5000/api/payment/verify",
@@ -112,6 +106,13 @@ const PaymentBtn = () => {
             razorpay_order_id: paymentResponse.razorpay_order_id,
             razorpay_payment_id: paymentResponse.razorpay_payment_id,
             razorpay_signature: paymentResponse.razorpay_signature,
+            // --- PASSING DATA TO SERVER ---
+            orderData: {
+              userId: currentUser.uid,
+              userEmail: currentUser.email,
+              amount: amount,
+              items: products,
+            },
           }),
         },
       );
@@ -119,36 +120,15 @@ const PaymentBtn = () => {
       const verifyData = await verifyRes.json();
 
       if (verifyData.success) {
-        // Verification Successful -> Save to Firebase
-        await saveOrder(paymentResponse);
+        // Success! The Server did the saving. We just clear the UI.
+        dispatch(resetCart());
+        navigate("/orders");
       } else {
         alert("Payment Verification Failed! Contact Support.");
       }
     } catch (error) {
       console.error(error);
       alert("Verification Server Error");
-    }
-  };
-
-  // 4. Save to Firebase (No Email)
-  const saveOrder = async (paymentResponse) => {
-    try {
-      await addDoc(collection(db, "orders"), {
-        userId: currentUser.uid,
-        userEmail: currentUser.email, // Saving email for future admin use
-        amount: amount,
-        paymentId: paymentResponse.razorpay_payment_id,
-        orderId: paymentResponse.razorpay_order_id, // Official Razorpay Order ID
-        createdAt: serverTimestamp(),
-        status: "Processing",
-        items: products,
-      });
-
-      dispatch(resetCart());
-      navigate("/orders");
-    } catch (error) {
-      console.error("Error saving order:", error);
-      alert("Payment succeeded but failed to save order.");
     }
   };
 

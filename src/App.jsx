@@ -28,6 +28,7 @@ import AddProduct from "../pages/admin/addProduct.page";
 import AdminOrders from "../pages/admin/adminOrders.page";
 import AdminProducts from "../pages/admin/adminProducts.page";
 import AddressPage from "../pages/adress.page";
+import ForgotPassword from "../components/forgetpassword/forgetPassword.component";
 // import MigrateData from "../components/admin/migrateData.component";
 // 1. ROOT LAYOUT
 // Wraps the ENTIRE app to ensure ScrollRestoration works everywhere.
@@ -70,7 +71,7 @@ function App() {
           <Route path="wishlist" element={<Wishlist />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="addresses" element={<AddressPage />} />
-          
+          <Route path="forgot-password" element={<ForgotPassword />} />
         </Route>
 
         {/* === ADMIN ROUTES (Different Layout) === */}
@@ -100,8 +101,8 @@ function App() {
           path="/registration"
           element={currentUser ? <Navigate to="/" replace /> : <Registration />}
         />
-      </Route>
-    )
+      </Route>,
+    ),
   );
 
   return (

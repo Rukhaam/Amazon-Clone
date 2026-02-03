@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 import { db } from "../../firebase/firebase.utils";
-import { 
-  collection, 
-  getDocs, 
-  doc, 
-  updateDoc, 
-  query, 
-  orderBy 
+import {
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  query,
+  orderBy,
 } from "firebase/firestore";
 
 const AdminOrderContext = createContext();
@@ -22,12 +22,12 @@ export const AdminProvider = ({ children }) => {
       // Get all orders sorted by newest first
       const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
       const snapshot = await getDocs(q);
-      
+
       const ordersData = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-      
+
       setOrders(ordersData);
     } catch (error) {
       console.error("Error fetching admin orders:", error);
@@ -41,22 +41,21 @@ export const AdminProvider = ({ children }) => {
     try {
       // A. Update Firebase
       const orderRef = doc(db, "orders", orderId);
-      
+
       // We update both common field names to be safe
-      await updateDoc(orderRef, { 
+      await updateDoc(orderRef, {
         status: newStatus,
-        orderStatus: newStatus 
+        orderStatus: newStatus,
       });
 
       // B. Update Local State (Crucial for UI to reflect change)
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
-          order.id === orderId 
-            ? { ...order, status: newStatus, orderStatus: newStatus } 
-            : order
-        )
+          order.id === orderId
+            ? { ...order, status: newStatus, orderStatus: newStatus }
+            : order,
+        ),
       );
-      
     } catch (error) {
       console.error("Error updating status:", error);
       alert("Failed to update status in database.");
@@ -64,12 +63,12 @@ export const AdminProvider = ({ children }) => {
   };
 
   return (
-    <AdminOrderContext.Provider 
-      value={{ 
-        orders, 
-        loadingOrders, 
-        fetchAllOrders, 
-        updateOrderStatus 
+    <AdminOrderContext.Provider
+      value={{
+        orders,
+        loadingOrders,
+        fetchAllOrders,
+        updateOrderStatus,
       }}
     >
       {children}
