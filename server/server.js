@@ -8,35 +8,48 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const Joi = require("joi");
 
-// --- FIX START: Handle Service Account Logic ---
+// --- 1. ROBUST SERVICE ACCOUNT SETUP (The Fix) ---
 let serviceAccount;
 
-if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-  try {
+try {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    // Parse the JSON string from Render Environment Variable
     serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 
-    // CRITICAL FIX: Replace literal "\n" with actual newlines
-    // This fixes the "Invalid PEM" error on Render
+    // FIX: Repair the Private Key formatting
     if (serviceAccount.private_key) {
-      serviceAccount.private_key = serviceAccount.private_key.replace(
-        /\\n/g,
-        "\n",
-      );
+      serviceAccount.private_key = serviceAccount.private_key
+        .replace(/\\n/g, "\n") // Convert literal "\n" to real newlines
+        .replace(/"/g, ""); // Remove any extra quote marks if present
+
+      // Safety: Re-add headers if they got cut off
+      const beginHeader = "-----BEGIN PRIVATE KEY-----";
+      const endHeader = "-----END PRIVATE KEY-----";
+
+      if (!serviceAccount.private_key.includes(beginHeader)) {
+        serviceAccount.private_key =
+          beginHeader + "\n" + serviceAccount.private_key;
+      }
+      if (!serviceAccount.private_key.includes(endHeader)) {
+        serviceAccount.private_key =
+          serviceAccount.private_key + "\n" + endHeader;
+      }
     }
-  } catch (err) {
-    console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT:", err);
+  } else {
+    // Fallback for local testing
+    serviceAccount = require("./serviceAccountKey.json");
   }
-} else {
-  // Fallback for local development
-  serviceAccount = require("./serviceAccountKey.json");
+} catch (err) {
+  console.error("❌ FATAL: Could not parse FIREBASE_SERVICE_ACCOUNT.", err);
+  process.exit(1); // Stop server immediately if keys are bad
 }
-// --- FIX END ---
+// ------------------------------------------------
 
 require("dotenv").config({ path: path.resolve(__dirname, "server.env") });
 
 const app = express();
 
-// --- SECURITY LAYER ---
+// --- 2. SECURITY & MIDDLEWARE ---
 app.set("trust proxy", 1);
 app.use(helmet());
 
@@ -48,40 +61,52 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 app.use(limiter);
-// ---------------------
 
 app.use(express.json());
-// CORS config to allow your Vercel app
+
+// CORS: Allow your Frontend URL (Vercel)
 app.use(
   cors({
-    origin: ["http://localhost:5173", process.env.CLIENT_URL], // You can add your Vercel URL here if needed
+    origin: [
+      "http://localhost:5173",
+      process.env.CLIENT_URL, // Add this var in Render if you have a specific domain
+      "https://amazon-clone-rukhaam.vercel.app", // Example: Add your actual Vercel domain here if needed
+    ],
     credentials: true,
   }),
 );
 
-// Initialize Firebase Admin
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+// --- 3. INITIALIZATION ---
+
+// Initialize Firebase
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+  });
+}
 const db = admin.firestore();
 
 // Initialize Razorpay
+if (!process.env.RAZORPAY_KEY_ID) {
+  console.error(
+    "❌ CRITICAL: Razorpay Key ID is missing in Environment Variables.",
+  );
+  process.exit(1);
+}
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
-
-if (!process.env.RAZORPAY_KEY_ID) {
-  console.error("CRITICAL ERROR: Razorpay Key ID is not set.");
-  process.exit(1);
-}
 
 // Validation Schema
 const orderSchema = Joi.object({
   amount: Joi.number().min(1).required(),
 });
 
-// Route 1: Create Order
+// --- 4. ROUTES ---
+
+// Route: Create Order
 app.post("/api/payment/create-order", async (req, res) => {
   try {
     const { error } = orderSchema.validate(req.body);
@@ -105,7 +130,7 @@ app.post("/api/payment/create-order", async (req, res) => {
   }
 });
 
-// Route 2: Verify Payment & SAVE ORDER
+// Route: Verify Payment & Save to DB
 app.post("/api/payment/verify", async (req, res) => {
   try {
     const {
@@ -121,7 +146,6 @@ app.post("/api/payment/verify", async (req, res) => {
         .json({ success: false, message: "Missing payment details" });
     }
 
-    // Verify Signature
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -129,7 +153,7 @@ app.post("/api/payment/verify", async (req, res) => {
       .digest("hex");
 
     if (expectedSignature === razorpay_signature) {
-      // SAVE TO FIRESTORE
+      // Success! Save to Firestore
       await db
         .collection("orders")
         .doc(razorpay_order_id)
@@ -154,9 +178,9 @@ app.post("/api/payment/verify", async (req, res) => {
   }
 });
 
-// Route 3: Webhook
+// Route: Webhook (Backup)
 app.post("/api/payment/webhook", async (req, res) => {
-  const secret = "my_hidden_webhook_secret_123";
+  const secret = "my_hidden_webhook_secret_123"; // Make sure this matches Razorpay Dashboard
   const shasum = crypto.createHmac("sha256", secret);
   shasum.update(JSON.stringify(req.body));
   const digest = shasum.digest("hex");
