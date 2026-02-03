@@ -12,29 +12,25 @@ const Joi = require("joi");
 let serviceAccount;
 
 try {
-  // Option A: Base64 Encoded (The Bulletproof Method)
   if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
     const buffer = Buffer.from(
       process.env.FIREBASE_SERVICE_ACCOUNT_BASE64,
       "base64",
     );
     serviceAccount = JSON.parse(buffer.toString("utf-8"));
-  }
-  // Option B: Local Development
-  else {
+  } else {
     serviceAccount = require("./serviceAccountKey.json");
   }
 } catch (err) {
   console.error("❌ FATAL ERROR: Could not load Firebase Credentials.");
   console.error(err);
-  process.exit(1); // Stop the server if keys are broken
+  process.exit(1);
 }
 
 require("dotenv").config({ path: path.resolve(__dirname, "server.env") });
 
 const app = express();
 
-// --- 2. MIDDLEWARE ---
 app.set("trust proxy", 1);
 app.use(helmet());
 
@@ -193,6 +189,10 @@ app.post("/api/payment/webhook", async (req, res) => {
   } else {
     res.status(400).json({ status: "invalid_signature" });
   }
+});
+
+app.get("/", (req, res) => {
+  res.send("API is working correctly! 🚀");
 });
 
 const PORT = process.env.PORT || 5000;
