@@ -8,9 +8,29 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const Joi = require("joi");
 
-const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
-  ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
-  : require("./serviceAccountKey.json");
+// --- FIX START: Handle Service Account Logic ---
+let serviceAccount;
+
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  try {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
+    // CRITICAL FIX: Replace literal "\n" with actual newlines
+    // This fixes the "Invalid PEM" error on Render
+    if (serviceAccount.private_key) {
+      serviceAccount.private_key = serviceAccount.private_key.replace(
+        /\\n/g,
+        "\n",
+      );
+    }
+  } catch (err) {
+    console.error("Failed to parse FIREBASE_SERVICE_ACCOUNT:", err);
+  }
+} else {
+  // Fallback for local development
+  serviceAccount = require("./serviceAccountKey.json");
+}
+// --- FIX END ---
 
 require("dotenv").config({ path: path.resolve(__dirname, "server.env") });
 
@@ -31,7 +51,13 @@ app.use(limiter);
 // ---------------------
 
 app.use(express.json());
-app.use(cors());
+// CORS config to allow your Vercel app
+app.use(
+  cors({
+    origin: ["http://localhost:5173", process.env.CLIENT_URL], // You can add your Vercel URL here if needed
+    credentials: true,
+  }),
+);
 
 // Initialize Firebase Admin
 admin.initializeApp({
@@ -79,14 +105,14 @@ app.post("/api/payment/create-order", async (req, res) => {
   }
 });
 
-// Route 2: Verify Payment & SAVE ORDER (The Fix)
+// Route 2: Verify Payment & SAVE ORDER
 app.post("/api/payment/verify", async (req, res) => {
   try {
     const {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      orderData, // <--- 1. We now accept order data here
+      orderData,
     } = req.body;
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
@@ -103,14 +129,13 @@ app.post("/api/payment/verify", async (req, res) => {
       .digest("hex");
 
     if (expectedSignature === razorpay_signature) {
-      // 2. SAVE TO FIRESTORE (Securely)
-      // We use 'set' with merge to avoid overwriting if the Webhook saved it first
+      // SAVE TO FIRESTORE
       await db
         .collection("orders")
         .doc(razorpay_order_id)
         .set(
           {
-            ...orderData, // Saves items, userId, email, amount
+            ...orderData,
             paymentId: razorpay_payment_id,
             orderId: razorpay_order_id,
             status: "Processing",
