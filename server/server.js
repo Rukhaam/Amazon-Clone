@@ -8,7 +8,9 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const Joi = require("joi");
 
-const serviceAccount = require("./serviceAccountKey.json");
+const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT
+  ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+  : require("./serviceAccountKey.json");
 
 require("dotenv").config({ path: path.resolve(__dirname, "server.env") });
 
