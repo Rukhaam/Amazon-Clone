@@ -90,6 +90,7 @@ const orderSchema = Joi.object({
 // --- 4. ROUTES ---
 
 // Route: Create Order
+// Route: Create Order
 app.post("/api/payment/create-order", async (req, res) => {
   try {
     const { error } = orderSchema.validate(req.body);
@@ -99,8 +100,14 @@ app.post("/api/payment/create-order", async (req, res) => {
         .json({ success: false, message: error.details[0].message });
 
     const { amount } = req.body;
+
+    // --- THE FIX IS HERE ---
+    // 1. Multiply by 100 to convert Rupee to Paise
+    // 2. Math.round() removes any decimals (e.g. 49999.001 -> 49999)
+    const amountInPaise = Math.round(amount * 100);
+
     const options = {
-      amount: amount * 100,
+      amount: amountInPaise,
       currency: "INR",
       receipt: "receipt_" + Date.now(),
     };
