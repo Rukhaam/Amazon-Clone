@@ -11,8 +11,7 @@ console.log("Key ID:", process.env.RAZORPAY_KEY_ID);
 
 async function testConnection() {
   try {
-    // Attempt to fetch orders (or create a dummy one) to check auth
-    // Fetching orders is safer/readonly if allowed, but creating a dummy order is the standard test.
+  
     const options = {
       amount: 100, // 1 rupee
       currency: "INR",

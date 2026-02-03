@@ -29,9 +29,6 @@ import AdminOrders from "../pages/admin/adminOrders.page";
 import AdminProducts from "../pages/admin/adminProducts.page";
 import AddressPage from "../pages/adress.page";
 import ForgotPassword from "../components/forgetpassword/forgetPassword.component";
-// import MigrateData from "../components/admin/migrateData.component";
-// 1. ROOT LAYOUT
-// Wraps the ENTIRE app to ensure ScrollRestoration works everywhere.
 const RootLayout = () => {
   return (
     <>

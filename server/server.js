@@ -43,7 +43,15 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-app.use(express.json());
+// --- FIX 1: Capture Raw Body for Webhooks ---
+// We need the raw buffer to verify the Razorpay webhook signature accurately.
+app.use(
+  express.json({
+    verify: (req, res, buf) => {
+      req.rawBody = buf.toString();
+    },
+  }),
+);
 
 app.use(
   cors({
@@ -90,7 +98,6 @@ const orderSchema = Joi.object({
 // --- 4. ROUTES ---
 
 // Route: Create Order
-// Route: Create Order
 app.post("/api/payment/create-order", async (req, res) => {
   try {
     const { error } = orderSchema.validate(req.body);
@@ -101,9 +108,7 @@ app.post("/api/payment/create-order", async (req, res) => {
 
     const { amount } = req.body;
 
-    // --- THE FIX IS HERE ---
-    // 1. Multiply by 100 to convert Rupee to Paise
-    // 2. Math.round() removes any decimals (e.g. 49999.001 -> 49999)
+    // Convert Rupee to Paise and ensure integer
     const amountInPaise = Math.round(amount * 100);
 
     const options = {
@@ -127,7 +132,7 @@ app.post("/api/payment/verify", async (req, res) => {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      orderData,
+      orderData, // Contains address/user details from frontend
     } = req.body;
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
@@ -136,6 +141,7 @@ app.post("/api/payment/verify", async (req, res) => {
         .json({ success: false, message: "Missing payment details" });
     }
 
+    // Verify Signature
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
@@ -143,12 +149,25 @@ app.post("/api/payment/verify", async (req, res) => {
       .digest("hex");
 
     if (expectedSignature === razorpay_signature) {
+      // --- FIX 2: Sanitize orderData ---
+      // Prevent malicious overwrite of critical fields by extracting only safe keys.
+      // Adjust these fields based on what your frontend actually sends.
+      const safeOrderData = {
+        name: orderData?.name,
+        email: orderData?.email,
+        address: orderData?.address,
+        city: orderData?.city,
+        postalCode: orderData?.postalCode,
+        country: orderData?.country,
+        items: orderData?.items || [], // Ensure items are preserved
+      };
+
       await db
         .collection("orders")
         .doc(razorpay_order_id)
         .set(
           {
-            ...orderData,
+            ...safeOrderData, // Use sanitized data
             paymentId: razorpay_payment_id,
             orderId: razorpay_order_id,
             status: "Processing",
@@ -168,32 +187,56 @@ app.post("/api/payment/verify", async (req, res) => {
 
 // Route: Webhook
 app.post("/api/payment/webhook", async (req, res) => {
-  const secret = "my_hidden_webhook_secret_123";
+  // --- FIX 3: Use Env Variable & Raw Body ---
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+
+  if (!secret) {
+    console.error("❌ CRITICAL: RAZORPAY_WEBHOOK_SECRET is missing.");
+    return res.status(500).send("Server Configuration Error");
+  }
+
   const shasum = crypto.createHmac("sha256", secret);
-  shasum.update(JSON.stringify(req.body));
+
+  // Use req.rawBody (captured by middleware) for accurate hash
+  shasum.update(req.rawBody);
+
   const digest = shasum.digest("hex");
 
   if (digest === req.headers["x-razorpay-signature"]) {
     const event = req.body;
+
+    // Check for payment.captured event
     if (event.event === "payment.captured") {
       const payment = event.payload.payment.entity;
       const orderRef = db.collection("orders").doc(payment.order_id);
-      const doc = await orderRef.get();
 
-      if (!doc.exists) {
-        await orderRef.set({
-          orderId: payment.order_id,
-          paymentId: payment.id,
-          amount: payment.amount / 100,
-          email: payment.email,
-          status: "Processing",
-          method: "Webhook (Backup)",
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
+      try {
+        const doc = await orderRef.get();
+
+        // Only create if it doesn't exist (Backup for when frontend verification fails)
+        if (!doc.exists) {
+          await orderRef.set({
+            orderId: payment.order_id,
+            paymentId: payment.id,
+            amount: payment.amount / 100,
+            email: payment.email,
+            status: "Processing",
+            method: "Webhook (Backup)",
+            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          });
+          console.log(
+            `✅ Webhook: Order ${payment.order_id} created/recovered.`,
+          );
+        } else {
+          console.log(`ℹ️ Webhook: Order ${payment.order_id} already exists.`);
+        }
+      } catch (err) {
+        console.error("Webhook DB Error:", err);
       }
     }
     res.json({ status: "ok" });
   } else {
+    console.warn("⚠️ Invalid Webhook Signature detected.");
     res.status(400).json({ status: "invalid_signature" });
   }
 });

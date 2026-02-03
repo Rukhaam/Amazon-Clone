@@ -11,14 +11,11 @@ export const ProductsProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 1. Fetch Products (ONLY FROM FIREBASE NOW)
   useEffect(() => {
     const fetchAllProducts = async () => {
       try {
         setLoading(true);
         setError(null);
-
-        // Fetch everything from 'products' collection
         const querySnapshot = await getDocs(collection(db, "products"));
         
         const firebaseProducts = querySnapshot.docs.map((doc) => ({
