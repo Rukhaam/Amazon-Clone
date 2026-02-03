@@ -19,6 +19,10 @@ const PaymentBtn = () => {
 
   const [loading, setLoading] = useState(false);
 
+  // 1. DEFINE BACKEND URL (Use Vercel variable, fallback to localhost for safety)
+  const BACKEND_URL =
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
   const loadRazorpay = () => {
     return new Promise((resolve) => {
       const script = document.createElement("script");
@@ -45,15 +49,12 @@ const PaymentBtn = () => {
         return;
       }
 
-      // 1. Create Order on Server
-      const response = await fetch(
-        "http://localhost:5000/api/payment/create-order",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ amount: amount }),
-        },
-      );
+      // 2. USE BACKEND_URL HERE (Fixed)
+      const response = await fetch(`${BACKEND_URL}/api/payment/create-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: amount }),
+      });
 
       const data = await response.json();
 
@@ -63,7 +64,7 @@ const PaymentBtn = () => {
         return;
       }
 
-      // 2. Open Razorpay
+      // 3. Open Razorpay
       const options = {
         key: import.meta.env.VITE_RAZOR_PAY_KEY,
         amount: data.order.amount,
@@ -73,7 +74,7 @@ const PaymentBtn = () => {
         image: logo,
         order_id: data.order.id,
         handler: async function (response) {
-          // 3. Verify on backend AND SAVE DATA
+          // 4. Verify on backend AND SAVE DATA
           await verifyAndSavePayment(response);
         },
         prefill: {
@@ -88,34 +89,32 @@ const PaymentBtn = () => {
       paymentObject.open();
     } catch (error) {
       console.error("Payment Error:", error);
-      alert("Payment initiation failed");
+      alert("Payment initiation failed. Check console for details.");
     } finally {
       setLoading(false);
     }
   };
 
-  // 4. Verification Logic (The Fix)
+  // 5. Verification Logic (Fixed)
   const verifyAndSavePayment = async (paymentResponse) => {
     try {
-      const verifyRes = await fetch(
-        "http://localhost:5000/api/payment/verify",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            razorpay_order_id: paymentResponse.razorpay_order_id,
-            razorpay_payment_id: paymentResponse.razorpay_payment_id,
-            razorpay_signature: paymentResponse.razorpay_signature,
-            // --- PASSING DATA TO SERVER ---
-            orderData: {
-              userId: currentUser.uid,
-              userEmail: currentUser.email,
-              amount: amount,
-              items: products,
-            },
-          }),
-        },
-      );
+      // 6. USE BACKEND_URL HERE TOO (Fixed)
+      const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          razorpay_order_id: paymentResponse.razorpay_order_id,
+          razorpay_payment_id: paymentResponse.razorpay_payment_id,
+          razorpay_signature: paymentResponse.razorpay_signature,
+          // --- PASSING DATA TO SERVER ---
+          orderData: {
+            userId: currentUser.uid,
+            userEmail: currentUser.email,
+            amount: amount,
+            items: products,
+          },
+        }),
+      });
 
       const verifyData = await verifyRes.json();
 
