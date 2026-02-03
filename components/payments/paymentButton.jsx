@@ -22,7 +22,7 @@ const PaymentBtn = () => {
   // 1. DEFINE BACKEND URL (Use Vercel variable, fallback to localhost for safety)
   const BACKEND_URL =
     import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
-
+  console.log("MY BACKEND URL IS:", import.meta.env.VITE_BACKEND_URL);
   const loadRazorpay = () => {
     return new Promise((resolve) => {
       const script = document.createElement("script");
