@@ -8,50 +8,26 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const Joi = require("joi");
 
-// --- 1. ROBUST CREDENTIAL LOADING ---
+// --- 1. BULLETPROOF CREDENTIAL LOADING ---
 let serviceAccount;
 
-// Option A: Production (Render) - Individual Variables
-// This is safer than parsing a huge JSON string
-if (process.env.FIREBASE_PRIVATE_KEY) {
-  serviceAccount = {
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    // Replace standard escaped newlines if present
-    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-  };
-}
-// Option B: Legacy/Fallback (JSON String)
-else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-  try {
-    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    if (serviceAccount.private_key) {
-      serviceAccount.private_key = serviceAccount.private_key.replace(
-        /\\n/g,
-        "\n",
-      );
-    }
-  } catch (err) {
-    console.error("Error parsing FIREBASE_SERVICE_ACCOUNT JSON:", err);
+try {
+  // Option A: Base64 Encoded (The Bulletproof Method)
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+    const buffer = Buffer.from(
+      process.env.FIREBASE_SERVICE_ACCOUNT_BASE64,
+      "base64",
+    );
+    serviceAccount = JSON.parse(buffer.toString("utf-8"));
   }
-}
-// Option C: Local Development (File)
-else {
-  try {
+  // Option B: Local Development
+  else {
     serviceAccount = require("./serviceAccountKey.json");
-  } catch (err) {
-    console.log("No local serviceAccountKey.json found.");
   }
-}
-
-// Check if we actually found credentials
-if (
-  !serviceAccount ||
-  (!serviceAccount.privateKey && !serviceAccount.private_key)
-) {
-  console.error("❌ FATAL: No valid Firebase Credentials found.");
-  // We do NOT exit here to allow debugging logs to show,
-  // but Firebase init will likely fail below.
+} catch (err) {
+  console.error("❌ FATAL ERROR: Could not load Firebase Credentials.");
+  console.error(err);
+  process.exit(1); // Stop the server if keys are broken
 }
 
 require("dotenv").config({ path: path.resolve(__dirname, "server.env") });
@@ -73,7 +49,6 @@ app.use(limiter);
 
 app.use(express.json());
 
-// CORS Config
 app.use(
   cors({
     origin: [
@@ -97,7 +72,7 @@ try {
   }
 } catch (error) {
   console.error("❌ Firebase Init Failed:", error.message);
-  // Do not crash immediately so we can see the logs
+  process.exit(1); // Crash immediately if Firebase fails
 }
 
 const db = admin.firestore();
