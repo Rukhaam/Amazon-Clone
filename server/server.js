@@ -159,7 +159,7 @@ app.post("/api/payment/verify", async (req, res) => {
         city: orderData?.city,
         postalCode: orderData?.postalCode,
         country: orderData?.country,
-        items: orderData?.items || [], // Ensure items are preserved
+        items: orderData?.items || [],
       };
 
       await db

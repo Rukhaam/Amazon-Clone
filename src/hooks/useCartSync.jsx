@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase/firebase.utils";
 import { selectProducts, setCart } from "../../redux/cartSlice";
-import { useAuth } from "../context/auth.context";
+import { useAuth } from "../context/useAuth";
 
 const useCartSync = () => {
   const { currentUser } = useAuth();
@@ -31,17 +31,21 @@ const useCartSync = () => {
     const saveCart = async () => {
       if (currentUser && cartProducts.length > 0) {
         const docRef = doc(db, "carts", currentUser.uid);
-        await setDoc(docRef, { 
-            products: cartProducts, 
-            lastUpdated: new Date() 
-        }, { merge: true });
+        await setDoc(
+          docRef,
+          {
+            products: cartProducts,
+            lastUpdated: new Date(),
+          },
+          { merge: true },
+        );
         console.log("Cart saved to cloud");
       }
     };
 
     // We use a small timeout (debounce) so we don't write to DB on every single keystroke if typing qty
     const timeoutId = setTimeout(() => {
-        saveCart();
+      saveCart();
     }, 1000);
 
     return () => clearTimeout(timeoutId);

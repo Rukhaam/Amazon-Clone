@@ -1,21 +1,21 @@
 import React, { createContext, useContext, useState } from "react";
-import { 
-  collection, 
+import {
+  collection,
   addDoc, // Use addDoc since we aren't doing a batch for the cart anymore
-  serverTimestamp 
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../../firebase/firebase.utils"; // Ensure path is correct
-import { useAuth } from "./auth.context"; 
-import { useOrders } from "./orders.context"; 
+import { useAuth } from "./useAuth";
+import { useOrders } from "./orders.context";
 import { useCart } from "./cart.context"; // <--- Import useCart
 
 const CheckoutContext = createContext();
 
 export const CheckoutProvider = ({ children }) => {
   const { currentUser } = useAuth();
-  const { refreshOrders } = useOrders(); 
+  const { refreshOrders } = useOrders();
   const { clearCart } = useCart(); // <--- Get the smart clear function
-  
+
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
 
@@ -45,19 +45,18 @@ export const CheckoutProvider = ({ children }) => {
       await addDoc(collection(db, "orders"), orderData);
 
       // 3. Clear Cart (The Smart Way)
-      // This calls the function in CartContext, which clears Redux, 
+      // This calls the function in CartContext, which clears Redux,
       // which triggers the sync Effect to clear Firestore automatically.
-      await clearCart(); 
+      await clearCart();
 
       // 4. Update Local State
-      refreshOrders(); 
-      
-      return true; // Success
+      refreshOrders();
 
+      return true; // Success
     } catch (error) {
       console.error("Checkout Error:", error);
       setCheckoutError("Failed to place order. Please try again.");
-      return false; 
+      return false;
     } finally {
       setCheckoutLoading(false);
     }
@@ -66,7 +65,7 @@ export const CheckoutProvider = ({ children }) => {
   const value = {
     placeOrder,
     checkoutLoading,
-    checkoutError
+    checkoutError,
   };
 
   return (

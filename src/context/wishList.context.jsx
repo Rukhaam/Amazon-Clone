@@ -1,15 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { 
-  collection, 
-  query, 
-  where, 
-  getDocs, 
-  addDoc, 
-  deleteDoc, 
-  doc 
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc,
 } from "firebase/firestore";
 import { db } from "../../firebase/firebase.utils"; // Check path
-import { useAuth } from "./auth.context";
+import { useAuth } from "./useAuth";
 
 const WishlistContext = createContext();
 
@@ -25,15 +25,18 @@ export const WishlistProvider = ({ children }) => {
         setWishlist([]);
         return;
       }
-      
+
       setLoading(true);
       try {
         const q = query(
-          collection(db, "wishlist"), 
-          where("userId", "==", currentUser.uid)
+          collection(db, "wishlist"),
+          where("userId", "==", currentUser.uid),
         );
         const snapshot = await getDocs(q);
-        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const data = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setWishlist(data);
       } catch (error) {
         console.error("Error fetching wishlist:", error);
@@ -52,8 +55,9 @@ export const WishlistProvider = ({ children }) => {
       return;
     }
 
-
-    const alreadyExists = wishlist.find(item => item.productId === product.id);
+    const alreadyExists = wishlist.find(
+      (item) => item.productId === product.id,
+    );
     if (alreadyExists) {
       alert("This item is already in your Wish List.");
       return;
@@ -68,11 +72,11 @@ export const WishlistProvider = ({ children }) => {
         image: product.image,
         description: product.description,
         rating: product.rating || {},
-        createdAt: new Date()
+        createdAt: new Date(),
       };
 
       const docRef = await addDoc(collection(db, "wishlist"), newItem);
-      
+
       // Optimistic UI update
       setWishlist((prev) => [...prev, { ...newItem, id: docRef.id }]);
       alert("Added to Wish List!");
@@ -85,14 +89,16 @@ export const WishlistProvider = ({ children }) => {
   const removeFromWishlist = async (itemId) => {
     try {
       await deleteDoc(doc(db, "wishlist", itemId));
-      setWishlist((prev) => prev.filter(item => item.id !== itemId));
+      setWishlist((prev) => prev.filter((item) => item.id !== itemId));
     } catch (error) {
       console.error("Error removing from wishlist:", error);
     }
   };
 
   return (
-    <WishlistContext.Provider value={{ wishlist, loading, addToWishlist, removeFromWishlist }}>
+    <WishlistContext.Provider
+      value={{ wishlist, loading, addToWishlist, removeFromWishlist }}
+    >
       {children}
     </WishlistContext.Provider>
   );

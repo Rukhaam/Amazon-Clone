@@ -6,7 +6,7 @@ import {
   selectProducts,
   resetCart,
 } from "../../redux/cartSlice";
-import { useAuth } from "../../src/context/auth.context";
+import { AuthProvider as useAuth } from "../../src/context/auth.context";
 import { logo } from "../../src/assets/index";
 
 const PaymentBtn = () => {

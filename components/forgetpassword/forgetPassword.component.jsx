@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "../../src/context/auth.context";
+import { AuthProvider as useAuth } from "../../src/context/auth.context";
 import { Link } from "react-router-dom";
 
 // Standard CSS imports if you have them

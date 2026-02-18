@@ -10,7 +10,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../../firebase/firebase.utils";
-import { useAuth } from "../../src/context/auth.context";
+import { useAuth } from "./useAuth";
 
 const AddressContext = createContext();
 
@@ -31,7 +31,7 @@ export const AddressProvider = ({ children }) => {
       try {
         const q = query(
           collection(db, "addresses"),
-          where("userId", "==", currentUser.uid)
+          where("userId", "==", currentUser.uid),
         );
         const snapshot = await getDocs(q);
         const data = snapshot.docs.map((doc) => ({

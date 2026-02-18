@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { 
-  collection, 
-  query, 
-  where, 
-  orderBy, 
-  onSnapshot 
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
 } from "firebase/firestore";
-import { db } from "../../firebase/firebase.utils"; 
-import { useAuth } from "./auth.context"; // Ensure this path is correct
+import { db } from "../../firebase/firebase.utils";
+import { useAuth } from "./useAuth";
 
 const OrdersContext = createContext();
 
@@ -21,27 +21,31 @@ export const OrdersProvider = ({ children }) => {
 
     if (currentUser) {
       setLoading(true);
-      
+
       // 1. Query: Get orders for THIS user, sorted by newest
       const q = query(
         collection(db, "orders"),
         where("userId", "==", currentUser.uid),
-        orderBy("createdAt", "desc")
+        orderBy("createdAt", "desc"),
       );
 
       // 2. Listener: Updates automatically if Admin changes status
-      unsubscribe = onSnapshot(q, (snapshot) => {
-        const userOrders = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        
-        setOrders(userOrders);
-        setLoading(false);
-      }, (error) => {
-        console.error("Error fetching orders:", error);
-        setLoading(false);
-      });
+      unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const userOrders = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+
+          setOrders(userOrders);
+          setLoading(false);
+        },
+        (error) => {
+          console.error("Error fetching orders:", error);
+          setLoading(false);
+        },
+      );
     } else {
       // If logged out, clear orders
       setOrders([]);
@@ -57,9 +61,7 @@ export const OrdersProvider = ({ children }) => {
   const value = { orders, loading };
 
   return (
-    <OrdersContext.Provider value={value}>
-      {children}
-    </OrdersContext.Provider>
+    <OrdersContext.Provider value={value}>{children}</OrdersContext.Provider>
   );
 };
 

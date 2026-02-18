@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { db } from "../../firebase/firebase.utils";
 import {
   collection,
@@ -8,8 +8,7 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
-
-const AdminOrderContext = createContext();
+import { AdminOrderContext } from "./AdminOrderContext";
 
 export const AdminProvider = ({ children }) => {
   const [orders, setOrders] = useState([]);
@@ -75,5 +74,3 @@ export const AdminProvider = ({ children }) => {
     </AdminOrderContext.Provider>
   );
 };
-
-export const useAdmin = () => useContext(AdminOrderContext);

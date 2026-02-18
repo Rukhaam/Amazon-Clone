@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../../src/context/auth.context"; 
+import { AuthProvider as useAuth} from "../../src/context/auth.context"; 
 import { useReviews } from "../../src/context/reviewsContext"; // <--- Use Context
 import StarIcon from "@mui/icons-material/Star";
 

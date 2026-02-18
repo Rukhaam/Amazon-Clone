@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../src/context/auth.context"; // Ensure path is correct
+import { AuthProvider as useAuth } from "../../src/context/auth.context"; // Ensure path is correct
 
 const FooterTop = () => {
   const { currentUser } = useAuth();

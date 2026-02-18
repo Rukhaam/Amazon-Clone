@@ -17,7 +17,7 @@ import Cart from "../pages/cart.page";
 import SearchResults from "../pages/search.page";
 import SignIn from "../pages/signIn.page";
 import Registration from "../pages/register.page";
-import { useAuth } from "./context/auth.context";
+import { useAuth } from "./context/useAuth";
 import Checkout from "../pages/checkout.page";
 import Orders from "../pages/orders.page";
 import Wishlist from "../pages/wihslist.page";

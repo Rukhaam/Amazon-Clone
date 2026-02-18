@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useProducts } from "../../src/context/products.context"; // Get Data
-import { useAdmin } from "../../src/context/adminOrder.context";       // Get Actions
+import { useAdmin } from "../../src/context/useAdmin"; // Get Actions
 
 const AdminProducts = () => {
   const { products, loading } = useProducts();
@@ -12,22 +12,23 @@ const AdminProducts = () => {
       setDeletingId(id);
       const success = await deleteProduct(id);
       if (success) {
-        window.location.reload(); 
+        window.location.reload();
       }
       setDeletingId(null);
     }
   };
-  if (loading) return <div className="p-10 text-center">Loading Products...</div>;
+  if (loading)
+    return <div className="p-10 text-center">Loading Products...</div>;
 
   return (
     <div className="bg-white p-6 rounded shadow-md">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Manage Products</h2>
         <span className="text-sm text-gray-500">
-            Total Items: {products.length}
+          Total Items: {products.length}
         </span>
       </div>
-      
+
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -42,66 +43,68 @@ const AdminProducts = () => {
           </thead>
           <tbody className="text-sm text-gray-700">
             {products.map((item) => {
-               // Determine if it is our custom product (Firebase) or External (API)
-               const isCustom = String(item.id).length > 5;
+              // Determine if it is our custom product (Firebase) or External (API)
+              const isCustom = String(item.id).length > 5;
 
-               return (
+              return (
                 <tr key={item.id} className="border-b hover:bg-gray-50">
                   {/* Image */}
                   <td className="p-4">
-                    <img 
-                        src={item.image} 
-                        alt={item.title} 
-                        className="w-10 h-10 object-contain"
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-10 h-10 object-contain"
                     />
                   </td>
-                  
+
                   {/* Title */}
-                  <td className="p-4 font-medium max-w-xs truncate" title={item.title}>
+                  <td
+                    className="p-4 font-medium max-w-xs truncate"
+                    title={item.title}
+                  >
                     {item.title}
                   </td>
 
                   {/* Category */}
-                  <td className="p-4 capitalize">
-                    {item.category}
-                  </td>
+                  <td className="p-4 capitalize">{item.category}</td>
 
                   {/* Price */}
-                  <td className="p-4 font-bold text-gray-900">
-                    ${item.price}
-                  </td>
+                  <td className="p-4 font-bold text-gray-900">${item.price}</td>
 
                   {/* Source Badge */}
                   <td className="p-4">
                     {isCustom ? (
-                        <span className="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full font-bold">
-                            Firebase (Yours)
-                        </span>
+                      <span className="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full font-bold">
+                        Firebase (Yours)
+                      </span>
                     ) : (
-                        <span className="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded-full">
-                            External API
-                        </span>
+                      <span className="bg-gray-100 text-gray-500 text-xs px-2 py-1 rounded-full">
+                        External API
+                      </span>
                     )}
                   </td>
 
                   {/* Actions */}
                   <td className="p-4">
                     {isCustom ? (
-                        <button
-                          onClick={() => handleDelete(item.id)}
-                          disabled={deletingId === item.id}
-                          className="text-red-600 hover:text-red-800 font-bold hover:underline text-xs"
-                        >
-                          {deletingId === item.id ? "Deleting..." : "Delete"}
-                        </button>
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        disabled={deletingId === item.id}
+                        className="text-red-600 hover:text-red-800 font-bold hover:underline text-xs"
+                      >
+                        {deletingId === item.id ? "Deleting..." : "Delete"}
+                      </button>
                     ) : (
-                        <span className="text-gray-400 text-xs italic cursor-not-allowed" title="Read-only from API">
-                           Cannot Delete
-                        </span>
+                      <span
+                        className="text-gray-400 text-xs italic cursor-not-allowed"
+                        title="Read-only from API"
+                      >
+                        Cannot Delete
+                      </span>
                     )}
                   </td>
                 </tr>
-               );
+              );
             })}
           </tbody>
         </table>

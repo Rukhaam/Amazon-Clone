@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../src/context/auth.context";
+import { AuthProvider as useAuth } from "../src/context/auth.context";
 import { logo } from "../src/assets/index";
 
 const SignIn = () => {
