@@ -1,5 +1,5 @@
 import React from "react";
-import { AuthProvider as useAuth } from "../src/context/auth.context";
+import { useAuth } from "../src/context/useAuth";
 import { useOrders } from "../src/context/orders.context";
 import moment from "moment";
 
