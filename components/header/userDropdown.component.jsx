@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {AuthProvider as useAuth} from "../../src/context/auth.context";
+import { useAuth } from "../../src/context/useAuth";
 import { useDispatch } from "react-redux";
 import { resetCart } from "../../redux/cartSlice";
 

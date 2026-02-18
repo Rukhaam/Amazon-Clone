@@ -6,7 +6,7 @@ import {
   selectProducts,
   resetCart,
 } from "../../redux/cartSlice";
-import { AuthProvider as useAuth } from "../../src/context/auth.context";
+import { useAuth } from "../../src/context/useAuth";
 import { logo } from "../../src/assets/index";
 
 const PaymentBtn = () => {
@@ -74,7 +74,7 @@ const PaymentBtn = () => {
         image: logo,
         order_id: data.order.id,
         handler: async function (response) {
-          // 4. Verify on backend AND SAVE DATA
+
           await verifyAndSavePayment(response);
         },
         prefill: {
@@ -96,40 +96,42 @@ const PaymentBtn = () => {
   };
 
   // 5. Verification Logic (Fixed)
-  const verifyAndSavePayment = async (paymentResponse) => {
-    try {
-      // 6. USE BACKEND_URL HERE TOO (Fixed)
-      const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          razorpay_order_id: paymentResponse.razorpay_order_id,
-          razorpay_payment_id: paymentResponse.razorpay_payment_id,
-          razorpay_signature: paymentResponse.razorpay_signature,
-          // --- PASSING DATA TO SERVER ---
-          orderData: {
-            userId: currentUser.uid,
-            userEmail: currentUser.email,
-            amount: amount,
-            items: products,
-          },
-        }),
-      });
+ // 5. Verification Logic
+ const verifyAndSavePayment = async (paymentResponse) => {
+  try {
+    const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        razorpay_order_id: paymentResponse.razorpay_order_id,
+        razorpay_payment_id: paymentResponse.razorpay_payment_id,
+        razorpay_signature: paymentResponse.razorpay_signature,
+        orderData: {
+          userId: currentUser.uid,
+          userEmail: currentUser.email,
+          amount: amount,
+          items: products,
+        },
+      }),
+    });
 
-      const verifyData = await verifyRes.json();
+    const verifyData = await verifyRes.json();
+    
+    // 🚨 ADD THIS: Print the exact response from the server to your browser console
+    console.log("BACKEND VERIFICATION RESPONSE:", verifyData);
 
-      if (verifyData.success) {
-        // Success! The Server did the saving. We just clear the UI.
-        dispatch(resetCart());
-        navigate("/orders");
-      } else {
-        alert("Payment Verification Failed! Contact Support.");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("Verification Server Error");
+    if (verifyData.success) {
+      dispatch(resetCart());
+      navigate("/orders");
+    } else {
+      // 🚨 FIX THIS: Show the actual server message in the alert
+      alert(`Verification Failed! Reason: ${verifyData.message}`);
     }
-  };
+  } catch (error) {
+    console.error(error);
+    alert("Verification Server Error");
+  }
+};
 
   return (
     <button

@@ -8,7 +8,7 @@ import HeaderSearch from "./headerSearch.component";
 import HeaderAccount from "./headerAccount.component";
 import HeaderCart from "./headerCart.component";
 
-import { AuthProvider as useAuth } from "../../src/context/auth.context";
+import { useAuth } from "../../src/context/useAuth";
 import { useAddress } from "../../src/context/adresses.context";
 import LocationModal from "../addresses/locationModel.component";
 

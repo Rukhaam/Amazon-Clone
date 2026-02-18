@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ArrowDropDownOutlined } from "@mui/icons-material";
-import { AuthProvider as useAuth } from "../../src/context/auth.context";
+import { useAuth } from "../../src/context/useAuth";
 import UserDropdown from "./userDropdown.component"; 
 
 

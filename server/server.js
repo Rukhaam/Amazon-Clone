@@ -153,12 +153,9 @@ app.post("/api/payment/verify", async (req, res) => {
       // Prevent malicious overwrite of critical fields by extracting only safe keys.
       // Adjust these fields based on what your frontend actually sends.
       const safeOrderData = {
-        name: orderData?.name,
-        email: orderData?.email,
-        address: orderData?.address,
-        city: orderData?.city,
-        postalCode: orderData?.postalCode,
-        country: orderData?.country,
+        userId: orderData?.userId || null,
+        email: orderData?.userEmail || null,  // Map frontend userEmail to backend email
+        amount: orderData?.amount || null,
         items: orderData?.items || [],
       };
 

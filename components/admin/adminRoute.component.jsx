@@ -1,6 +1,6 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { AuthProvider as useAuth } from "../../src/context/auth.context";
+import { useAuth } from "../../src/context/useAuth";
 
 const AdminRoute = ({ children }) => {
   const { currentUser, loading } = useAuth();
