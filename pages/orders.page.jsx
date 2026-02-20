@@ -38,7 +38,7 @@ const Orders = () => {
                     <p>
                       {order.createdAt
                         ? moment(order.createdAt.toDate()).format(
-                            "MMMM Do YYYY",
+                            "MMMM Do YYYY"
                           )
                         : "N/A"}
                     </p>
@@ -70,7 +70,13 @@ const Orders = () => {
                         ${order.status === "Delivered" ? "text-green-600" : ""}
                         ${order.status === "Cancelled" ? "text-red-600" : ""}
                         ${order.status === "Shipped" ? "text-blue-600" : ""}
-                        ${!["Delivered", "Cancelled", "Shipped"].includes(order.status) ? "text-yellow-600" : ""}
+                        ${
+                          !["Delivered", "Cancelled", "Shipped"].includes(
+                            order.status
+                          )
+                            ? "text-yellow-600"
+                            : ""
+                        }
                     `}
                   >
                     {order.status || "Processing"}

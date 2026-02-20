@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { AuthProvider as useAuth } from "../src/context/auth.context"; 
+import { useAuth} from "../src/context/useAuth.js"; 
 import { logo } from "../src/assets/index";
 
 const Registration = () => {
